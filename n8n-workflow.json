@@ -1,0 +1,311 @@
+{
+  "name": "AI bot - whatsapp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "responseNode",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Access-Control-Allow-Headers",
+                "value": "*"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -544,
+        -64
+      ],
+      "id": "d0f9fb81-6eb0-45a9-b010-b5e3732a16ad",
+      "name": "Webhook",
+      "webhookId": "98a24a2d-d35b-4bb7-b10a-057adec10d69"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{$json}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        928,
+        -64
+      ],
+      "id": "1f669493-6351-4304-b7c4-6036ead3fe26",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Extract structured info from this message.\n\nReturn ONLY JSON:\n\n{\n  \"service\": \"\",\n  \"quantity\": number,\n  \"urgency\": \"normal\" or \"urgent\"\n}\n\nMessage:\n{{$json[\"body\"][\"message\"]}}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        128,
+        32
+      ],
+      "id": "40433418-cf70-49d2-a73a-c3405de3159b",
+      "name": "Message a model",
+      "credentials": {
+        "openAiApi": {
+          "id": "sAOXgOLd1lw6KPv5",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let text = $json.output[0].content[0].text;\n\n// remove ```json and ``` if present\ntext = text.replace(/```json/g, \"\").replace(/```/g, \"\").trim();\n\n// parse clean JSON\nconst parsed = JSON.parse(text);\n\nreturn parsed;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        32
+      ],
+      "id": "f1adb6cb-605d-4844-a30f-09a605a7cfe8",
+      "name": "Parse"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const services = [\n  { service: \"Socket installation\", base: 50, unit: \"unit\", per: 10, urgency: 1.5 },\n  { service: \"Light installation\", base: 40, unit: \"unit\", per: 8, urgency: 1.3 },\n  { service: \"Wiring\", base: 80, unit: \"meter\", per: 5, urgency: 1.2 },\n  { service: \"Inspection\", base: 40, unit: \"fixed\", per: 0, urgency: 1.0 },\n  { service: \"Emergency repair\", base: 100, unit: \"fixed\", per: 0, urgency: 2.0 }\n];\n\nconst s = services.find(x => x.service === $json.service);\n\nif (!s) {\n  return {\n    json: {\n      reply: \"Service not found.\"\n    }\n  };\n}\n\nlet price = s.base;\n\nif (s.unit !== \"fixed\") {\n  price += $json.quantity * s.per;\n}\n\nif ($json.urgency === \"urgent\") {\n  price *= s.urgency;\n}\n\nprice = Math.round(price);\n\nreturn {\n  json: {\n    service: s.service,\n    quantity: $json.quantity,\n    urgency: $json.urgency,\n    price,\n    reply: `Estimated price for ${s.service}: €${price}. Would you like to book an appointment?`\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        32
+      ],
+      "id": "f6fe38db-114e-4a41-8ec9-6504aea64453",
+      "name": "Pricing"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d23ada9f-7dfb-462f-a917-ae18e744899c",
+              "leftValue": "={{$json.body.action}}",
+              "rightValue": "get_slots",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -96,
+        -64
+      ],
+      "id": "2716315e-e6c2-444b-a9db-6e06d7831d6e",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  json: {\n    reply: \"Please choose a slot\",\n    slots: [\n      \"Tomorrow 10:00\",\n      \"Tomorrow 14:00\",\n      \"Day after 11:00\"\n    ]\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        704,
+        -160
+      ],
+      "id": "da5f2e92-9c6b-4432-9ee1-33346f2e2955",
+      "name": "Booking"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "console.log($json);\n\nreturn {\n  json: $json\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -320,
+        -64
+      ],
+      "id": "9fe6d7e4-3ea3-42ef-baae-e01e51171576",
+      "name": "Debug"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "lordlutz.app.n8n.cloud",
+            "user-agent": "axios/1.16.0",
+            "content-length": "22",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "2003:cd:f745:cc56:80a0:9e01:4699:b0f3",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "DE",
+            "cf-ray": "9f8aba37b8b7c0f7-AMS",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "2003:cd:f745:cc56:80a0:9e01:4699:b0f3, 104.23.168.11",
+            "x-forwarded-host": "lordlutz.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-77-684f686786-nsxjl",
+            "x-is-trusted": "yes",
+            "x-real-ip": "2003:cd:f745:cc56:80a0:9e01:4699:b0f3"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "action": "get_slots"
+          },
+          "webhookUrl": "https://lordlutz.app.n8n.cloud/webhook/chat",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Debug",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse": {
+      "main": [
+        [
+          {
+            "node": "Pricing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pricing": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Debug": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "137abaf8-5e6c-42c4-8adb-923b8ee4ae39",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7e64925587b3eed4f13db5d058cc8f992804c21a75e3a8ce064d5bafbb3e96ac"
+  },
+  "id": "MmBAEOrNstKz26Do",
+  "tags": []
+}
