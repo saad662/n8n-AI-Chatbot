@@ -50,7 +50,7 @@ export default function ChatWidget() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        action: "get_slots",
+        message: `${service} ${quantity || 1} ${urgency}`,
       }),
     });
 
@@ -62,7 +62,7 @@ export default function ChatWidget() {
       ...prev,
       {
         sender: "bot",
-        text: data.reply,
+        text: "Please choose a slot",
         slots: data.slots || [],
       },
     ]);
@@ -70,20 +70,30 @@ export default function ChatWidget() {
     setStep("booked");
   };
 
-  const handleSlotSelect = (slot) => {
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: "user",
-        text: slot,
-      },
-      {
-        sender: "bot",
-        text: `Appointment booked for ${slot} ✅`,
-      },
-    ]);
+  const handleSlotSelect = async (slot) => {
+    addMessage({ sender: "user", text: slot });
 
-    setStep("completed");
+    const res = await fetch("http://localhost:5000/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        action: "book_slot",
+        slot,
+      }),
+    });
+
+    const data = await res.json();
+
+    console.log("BOOKING RESPONSE:", data);
+
+    addMessage({
+      sender: "bot",
+      text: data.reply || `Appointment booked for ${slot} ✅`,
+    });
+
+    setStep("final");
   };
 
   const handleQuantity = (q) => {
@@ -99,6 +109,14 @@ export default function ChatWidget() {
 
     setStep("loading");
 
+    console.log("SENDING TO N8N:", {
+      message: `
+    Service: ${service}
+    Quantity: ${quantity}
+    Urgency: ${u}
+  `,
+    });
+
     const res = await fetch("http://localhost:5000/api/chat", {
       method: "POST",
       headers: {
@@ -110,6 +128,8 @@ export default function ChatWidget() {
     });
 
     const data = await res.json();
+
+    console.log("N8N RESPONSE:", data);
 
     addMessage({ sender: "bot", text: data.reply });
 
