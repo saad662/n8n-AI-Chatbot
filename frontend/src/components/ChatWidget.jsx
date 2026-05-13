@@ -11,6 +11,7 @@ export default function ChatWidget() {
   const [input, setInput] = useState("");
   const [quantity, setQuantity] = useState(null);
   const [urgency, setUrgency] = useState("normal");
+  const [bookingLoading, setBookingLoading] = useState(false);
 
   const [messages, setMessages] = useState([
     {
@@ -29,6 +30,18 @@ export default function ChatWidget() {
 
   const addMessage = (msg) => {
     setMessages((prev) => [...prev, msg]);
+  };
+
+  const handleSubmitInput = () => {
+    if (!input.trim()) return;
+    if (step === "name") handleName(input);
+    else if (step === "phone") handlePhone(input);
+    else if (step === "email") handleEmail(input);
+    setInput("");
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSubmitInput();
   };
 
   // STEP HANDLERS
@@ -122,69 +135,66 @@ export default function ChatWidget() {
     setStep("booked");
   };
 
- const handleSlotSelect = async (slot) => {
-  addMessage({
-    sender: "user",
-    text: slot,
-  });
+  const handleSlotSelect = async (slot) => {
+    if (bookingLoading) return;
 
-  const res = await fetch("http://localhost:5000/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      action: "book_slot",
-      slot,
-      customerName,
-      phone,
-      email,
-      service,
-      quantity,
-      urgency,
-    }),
-  });
+    setBookingLoading(true);
 
-  const data = await res.json();
+    addMessage({
+      sender: "user",
+      text: slot,
+    });
 
-  console.log("BOOKING RESPONSE:", data);
+    try {
+      const res = await fetch("http://localhost:5000/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          action: "book_slot",
+          slot,
+          customerName,
+          phone,
+          email,
+          service,
+          quantity,
+          urgency,
+        }),
+      });
 
-  addMessage({
-    sender: "bot",
-    text:
-      data.reply || `Appointment booked for ${slot} ✅`,
-  });
+      const data = await res.json();
 
-  // SAVE TO LOCAL STORAGE
-  const existingLeads = JSON.parse(
-    localStorage.getItem("lutz_leads") || "[]"
-  );
+      console.log("BOOKING RESPONSE:", data);
 
-  existingLeads.push({
-    customerName,
-    phone,
-    email,
-    service,
-    quantity,
-    urgency,
-    slot,
-    status: "Booked",
-    price: data.price || 0,
-    createdAt: new Date().toISOString(),
-  });
+      // BACKEND FAILURE
+      if (!res.ok || data.error) {
+        addMessage({
+          sender: "bot",
+          text: data.reply || "Booking failed. Please try another slot.",
+        });
 
-  localStorage.setItem(
-    "lutz_leads",
-    JSON.stringify(existingLeads)
-  );
+        return;
+      }
 
-  console.log(
-    "SAVED LEADS:",
-    localStorage.getItem("lutz_leads")
-  );
+      // SUCCESS
+      addMessage({
+        sender: "bot",
+        text: data.reply || `Appointment booked for ${slot} ✅`,
+      });
 
-  setStep("final");
-};
+      setStep("final");
+    } catch (err) {
+      console.error("BOOKING ERROR:", err);
+
+      addMessage({
+        sender: "bot",
+        text: "Booking failed. Please try again.",
+      });
+    } finally {
+      setBookingLoading(false);
+    }
+  };
 
   const handleQuantity = (q) => {
     setQuantity(q);
@@ -275,13 +285,22 @@ export default function ChatWidget() {
 
                   {msg.slots && msg.slots.length > 0 && (
                     <div className="mt-3 flex flex-col gap-2">
-                      {msg.slots.map((slot, idx) => (
+                      {[...new Set(msg.slots)].map((slot, idx) => (
                         <button
                           key={idx}
+                          disabled={bookingLoading}
                           onClick={() => handleSlotSelect(slot)}
-                          className="bg-yellow-400 text-black px-3 py-2 rounded-xl text-xs font-medium hover:bg-yellow-300 transition"
+                          className={`px-3 py-2 rounded-xl text-xs font-medium transition ${
+                            bookingLoading
+                              ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                              : "bg-yellow-400 text-black hover:bg-yellow-300"
+                          }`}
                         >
-                          {slot}
+                          {new Date(slot).toLocaleString("en-DE", {
+                            weekday: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </button>
                       ))}
                     </div>
@@ -299,6 +318,7 @@ export default function ChatWidget() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   placeholder={
                     step === "name"
                       ? "Enter your name"
@@ -310,19 +330,7 @@ export default function ChatWidget() {
                 />
 
                 <button
-                  onClick={() => {
-                    if (!input.trim()) return;
-
-                    if (step === "name") {
-                      handleName(input);
-                    } else if (step === "phone") {
-                      handlePhone(input);
-                    } else if (step === "email") {
-                      handleEmail(input);
-                    }
-
-                    setInput("");
-                  }}
+                  onClick={handleSubmitInput}
                   className="bg-yellow-400 px-4 py-2 rounded-xl text-sm font-semibold"
                 >
                   Send
