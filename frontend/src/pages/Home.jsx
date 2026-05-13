@@ -114,7 +114,7 @@ export default function Home() {
               +49 69 123456
             </div>
 
-            <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-5 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg">
+            <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-5 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
               Get Quote
             </button>
           </div>
@@ -146,7 +146,7 @@ export default function Home() {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-7 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105 flex items-center justify-center gap-2">
+                <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-7 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
                   Get Instant Quote
                   <ArrowRight className="w-5 h-5" />
                 </button>
@@ -232,24 +232,26 @@ export default function Home() {
       {/* TRUST STRIP */}
       <section className="bg-gradient-to-b from-white to-slate-50 border-y border-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div>
-            <ShieldCheck className="w-7 h-7 text-amber-400 mx-auto mb-3" />
-            <p className="font-semibold">Certified & Insured</p>
+          <div className="flex items-center justify-center gap-3">
+            <Star className="w-6 h-6 text-amber-400" />
+            <p className="font-semibold text-slate-900">Certified & Insured</p>
           </div>
 
-          <div>
-            <Clock3 className="w-7 h-7 text-amber-400 mx-auto mb-3" />
-            <p className="font-semibold">24/7 Emergency Support</p>
+          <div className="flex items-center justify-center gap-3">
+            <Star className="w-6 h-6 text-amber-400" />
+            <p className="font-semibold text-slate-900">
+              24/7 Emergency Support
+            </p>
           </div>
 
-          <div>
-            <Star className="w-7 h-7 text-amber-400 mx-auto mb-3" />
-            <p className="font-semibold">4.9★ Customer Rating</p>
+          <div className="flex items-center justify-center gap-3">
+            <Star className="w-6 h-6 text-amber-400" />
+            <p className="font-semibold text-slate-900">Top Rated Service</p>
           </div>
 
-          <div>
-            <BadgeCheck className="w-7 h-7 text-amber-400 mx-auto mb-3" />
-            <p className="font-semibold">Transparent Pricing</p>
+          <div className="flex items-center justify-center gap-3">
+            <Star className="w-6 h-6 text-amber-400" />
+            <p className="font-semibold text-slate-900">Transparent Pricing</p>
           </div>
         </div>
       </section>
@@ -303,14 +305,14 @@ export default function Home() {
       </section>
 
       {/* WHY US */}
-      <section id="why-us" className="py-20 md:py-28 bg-white">
+      <section id="why-us" className="py-16 md:py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
               <img
                 src="https://images.unsplash.com/photo-1581092921461-eab62e97a780?q=80&w=1200&auto=format&fit=crop"
                 alt="Electrician at work"
-                className="rounded-3xl shadow-2xl"
+                className="rounded-3xl shadow-2xl h-full object-cover min-h-[520px]"
               />
             </div>
 
@@ -362,7 +364,7 @@ export default function Home() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section id="reviews" className="py-20 md:py-28 bg-slate-50">
+      <section id="reviews" className="py-16 md:py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-4">
@@ -415,21 +417,22 @@ export default function Home() {
       </section>
 
       {/* CTA */}
-      <section id="contact" className="py-20 md:py-28 bg-white">
+      <section id="contact" className="pt-8 pb-20 md:pt-12 md:pb-28 bg-white">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
           <div className="bg-slate-900 rounded-[32px] p-10 md:p-16 text-white shadow-2xl border border-white/10 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-72 h-72 bg-amber-400/10 blur-3xl rounded-full"></div>
+            <div className="absolute top-0 right-0 w-72 h-72 bg-amber-400/10 blur-3xl rounded-full"></div>
             <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
-              Fast, Safe & Professional Electrical Service When You Need It
-              Most
+              Fast, Safe & Professional Electrical Service When You Need It Most
             </h2>
 
             <p className="text-lg text-gray-300 leading-relaxed mb-10 max-w-2xl mx-auto">
-  From emergency repairs to complete installations, our certified electricians are ready to help homes and businesses across Frankfurt.
-</p>
+              From emergency repairs to complete installations, our certified
+              electricians are ready to help homes and businesses across
+              Frankfurt.
+            </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105">
+              <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105 hover:-translate-y-1 active:scale-95">
                 Get Instant Quote
               </button>
 
@@ -442,19 +445,153 @@ export default function Home() {
       </section>
 
       {/* FOOTER */}
-      <footer className="bg-slate-950 text-gray-400 py-10 border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div>
-            <h3 className="text-white font-bold text-lg mb-2">ElektroFix</h3>
+      <footer className="bg-slate-950 text-gray-400 border-t border-white/5">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {/* BRAND */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-11 h-11 rounded-2xl bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-400/20">
+                  <Zap className="w-6 h-6 text-slate-900" />
+                </div>
 
-            <p className="text-sm">
-              Professional Electrical Services Across Germany
-            </p>
+                <div>
+                  <h3 className="text-white font-black text-xl tracking-tight">
+                    ElektroFix
+                  </h3>
+
+                  <p className="text-sm text-gray-500">Licensed Electricians</p>
+                </div>
+              </div>
+
+              <p className="text-sm leading-relaxed text-gray-500 max-w-xs">
+                Professional electrical services for homes and businesses across
+                Frankfurt and nearby areas.
+              </p>
+            </div>
+
+            {/* SERVICES */}
+            <div>
+              <h4 className="text-white font-bold mb-6">Services</h4>
+
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a
+                    href="#services"
+                    className="hover:text-white transition-colors"
+                  >
+                    Emergency Repairs
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="#services"
+                    className="hover:text-white transition-colors"
+                  >
+                    Wiring & Installations
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="#services"
+                    className="hover:text-white transition-colors"
+                  >
+                    Electrical Inspections
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="#services"
+                    className="hover:text-white transition-colors"
+                  >
+                    Commercial Services
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* COMPANY */}
+            <div>
+              <h4 className="text-white font-bold mb-6">Company</h4>
+
+              <ul className="space-y-3 text-sm">
+                <li>
+                  <a
+                    href="#why-us"
+                    className="hover:text-white transition-colors"
+                  >
+                    Why Choose Us
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="#reviews"
+                    className="hover:text-white transition-colors"
+                  >
+                    Customer Reviews
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="#contact"
+                    className="hover:text-white transition-colors"
+                  >
+                    Contact Us
+                  </a>
+                </li>
+
+                <li>
+                  <a
+                    href="#contact"
+                    className="hover:text-white transition-colors"
+                  >
+                    Get Instant Quote
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* CONTACT */}
+            <div>
+              <h4 className="text-white font-bold mb-6">Contact</h4>
+
+              <div className="space-y-4 text-sm">
+                <div className="flex items-start gap-3">
+                  <Phone className="w-4 h-4 text-amber-400 mt-0.5" />
+                  <span>+49 69 123456</span>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <Clock3 className="w-4 h-4 text-amber-400 mt-0.5" />
+                  <span>24/7 Emergency Support</span>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <ShieldCheck className="w-4 h-4 text-amber-400 mt-0.5" />
+                  <span>Certified & Insured Electricians</span>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div className="text-sm text-center md:text-right">
-            <p>hello@elektrofix.de</p>
-            <p>+49 69 123456</p>
+          {/* BOTTOM BAR */}
+          <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+            <p className="text-gray-500">
+              © 2026 ElektroFix. All rights reserved.
+            </p>
+
+            <div className="flex items-center gap-6 text-gray-500">
+              <span>Frankfurt, Germany</span>
+
+              <span>•</span>
+
+              <span>Same-Day Service Available</span>
+            </div>
           </div>
         </div>
       </footer>
