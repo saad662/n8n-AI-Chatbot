@@ -3,15 +3,19 @@ import { useState } from "react";
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
 
-  const [step, setStep] = useState("service");
+  const [step, setStep] = useState("name");
   const [service, setService] = useState(null);
+  const [customerName, setCustomerName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [input, setInput] = useState("");
   const [quantity, setQuantity] = useState(null);
   const [urgency, setUrgency] = useState("normal");
 
   const [messages, setMessages] = useState([
     {
       sender: "bot",
-      text: "Hi 👋 Welcome to Lutz Electrical. What service do you need?",
+      text: "Hi 👋 Welcome to Lutz Electrical. What is your name?",
     },
   ]);
 
@@ -28,6 +32,54 @@ export default function ChatWidget() {
   };
 
   // STEP HANDLERS
+  const handleName = (value) => {
+    setCustomerName(value);
+
+    addMessage({
+      sender: "user",
+      text: value,
+    });
+
+    addMessage({
+      sender: "bot",
+      text: "What is your phone number?",
+    });
+
+    setStep("phone");
+  };
+
+  const handlePhone = (value) => {
+    setPhone(value);
+
+    addMessage({
+      sender: "user",
+      text: value,
+    });
+
+    addMessage({
+      sender: "bot",
+      text: "What is your email?",
+    });
+
+    setStep("email");
+  };
+
+  const handleEmail = (value) => {
+    setEmail(value);
+
+    addMessage({
+      sender: "user",
+      text: value,
+    });
+
+    addMessage({
+      sender: "bot",
+      text: "What service do you need?",
+    });
+
+    setStep("service");
+  };
+
   const handleServiceSelect = (s) => {
     setService(s);
     addMessage({ sender: "user", text: s });
@@ -70,31 +122,69 @@ export default function ChatWidget() {
     setStep("booked");
   };
 
-  const handleSlotSelect = async (slot) => {
-    addMessage({ sender: "user", text: slot });
+ const handleSlotSelect = async (slot) => {
+  addMessage({
+    sender: "user",
+    text: slot,
+  });
 
-    const res = await fetch("http://localhost:5000/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        action: "book_slot",
-        slot,
-      }),
-    });
+  const res = await fetch("http://localhost:5000/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      action: "book_slot",
+      slot,
+      customerName,
+      phone,
+      email,
+      service,
+      quantity,
+      urgency,
+    }),
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    console.log("BOOKING RESPONSE:", data);
+  console.log("BOOKING RESPONSE:", data);
 
-    addMessage({
-      sender: "bot",
-      text: data.reply || `Appointment booked for ${slot} ✅`,
-    });
+  addMessage({
+    sender: "bot",
+    text:
+      data.reply || `Appointment booked for ${slot} ✅`,
+  });
 
-    setStep("final");
-  };
+  // SAVE TO LOCAL STORAGE
+  const existingLeads = JSON.parse(
+    localStorage.getItem("lutz_leads") || "[]"
+  );
+
+  existingLeads.push({
+    customerName,
+    phone,
+    email,
+    service,
+    quantity,
+    urgency,
+    slot,
+    status: "Booked",
+    price: data.price || 0,
+    createdAt: new Date().toISOString(),
+  });
+
+  localStorage.setItem(
+    "lutz_leads",
+    JSON.stringify(existingLeads)
+  );
+
+  console.log(
+    "SAVED LEADS:",
+    localStorage.getItem("lutz_leads")
+  );
+
+  setStep("final");
+};
 
   const handleQuantity = (q) => {
     setQuantity(q);
@@ -123,6 +213,12 @@ export default function ChatWidget() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        customerName,
+        phone,
+        email,
+        service,
+        quantity,
+        urgency: u,
         message: `${service} ${quantity || 1} ${u}`,
       }),
     });
@@ -141,14 +237,14 @@ export default function ChatWidget() {
       {/* FLOATING BUTTON */}
       <div
         onClick={() => setOpen(!open)}
-        className="fixed bottom-6 right-6 bg-yellow-400 text-black w-12 h-12 rounded-full flex items-center justify-center text-lg cursor-pointer shadow-xl hover:bg-yellow-300 transition"
+        className="fixed bottom-6 right-6 z-[9999] bg-yellow-400 text-black w-12 h-12 rounded-full flex items-center justify-center text-lg cursor-pointer shadow-xl hover:bg-yellow-300 transition"
       >
         ⚡
       </div>
 
       {/* CHAT WINDOW */}
       {open && (
-        <div className="fixed bottom-20 right-6 w-[320px] h-[420px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-gray-200">
+        <div className="fixed bottom-20 right-6 z-[9999] w-[320px] h-[420px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-gray-200">
           {/* HEADER */}
           <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-4 py-2.5 font-semibold flex items-center justify-between">
             <span>⚡ Lutz Electrical</span>
@@ -197,6 +293,42 @@ export default function ChatWidget() {
 
           {/* OPTIONS AREA */}
           <div className="p-2.5 border-t bg-white space-y-2">
+            {(step === "name" || step === "phone" || step === "email") && (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder={
+                    step === "name"
+                      ? "Enter your name"
+                      : step === "phone"
+                        ? "Enter phone number"
+                        : "Enter your email"
+                  }
+                  className="flex-1 border rounded-xl px-3 py-2 text-sm outline-none"
+                />
+
+                <button
+                  onClick={() => {
+                    if (!input.trim()) return;
+
+                    if (step === "name") {
+                      handleName(input);
+                    } else if (step === "phone") {
+                      handlePhone(input);
+                    } else if (step === "email") {
+                      handleEmail(input);
+                    }
+
+                    setInput("");
+                  }}
+                  className="bg-yellow-400 px-4 py-2 rounded-xl text-sm font-semibold"
+                >
+                  Send
+                </button>
+              </div>
+            )}
             {step === "service" && (
               <div className="flex flex-wrap gap-2">
                 {services.map((s, i) => (
