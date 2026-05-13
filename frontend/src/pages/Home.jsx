@@ -66,10 +66,10 @@ export default function Home() {
   return (
     <div className="bg-slate-50 text-gray-900 font-sans overflow-x-hidden">
       {/* NAVBAR */}
-      <header className="sticky top-0 z-50 border-b border-gray-200 bg-white/95 backdrop-blur">
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-white/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-amber-400 flex items-center justify-center shadow-sm">
+            <div className="w-11 h-11 rounded-2xl bg-amber-400 flex items-center justify-center shadow-lg shadow-amber-400/20">
               <Zap className="w-6 h-6 text-slate-900" />
             </div>
 
@@ -77,23 +77,33 @@ export default function Home() {
               <h1 className="font-black text-xl tracking-tight text-slate-900">
                 ElektroFix
               </h1>
-              <p className="text-sm text-gray-500">
-                Licensed Electricians
-              </p>
+              <p className="text-sm text-gray-500">Licensed Electricians</p>
             </div>
           </div>
 
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-gray-600">
-            <a href="#services" className="hover:text-slate-900 transition-colors">
+            <a
+              href="#services"
+              className="hover:text-slate-900 transition-all duration-300"
+            >
               Services
             </a>
-            <a href="#why-us" className="hover:text-slate-900 transition-colors">
+            <a
+              href="#why-us"
+              className="hover:text-slate-900 transition-all duration-300"
+            >
               Why Us
             </a>
-            <a href="#reviews" className="hover:text-slate-900 transition-colors">
+            <a
+              href="#reviews"
+              className="hover:text-slate-900 transition-all duration-300"
+            >
               Reviews
             </a>
-            <a href="#contact" className="hover:text-slate-900 transition-colors">
+            <a
+              href="#contact"
+              className="hover:text-slate-900 transition-all duration-300"
+            >
               Contact
             </a>
           </nav>
@@ -125,11 +135,14 @@ export default function Home() {
               </div>
 
               <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-tight mb-6">
-                Licensed Electricians You Can Trust.
+                Professional Electricians in Frankfurt: Fast, Safe & Reliable
+                Service
               </h1>
 
               <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl mb-10">
-                Fast response times, professional workmanship, and modern AI-powered booking for homes and businesses.
+                Certified electricians for emergency repairs, installations,
+                wiring, and inspections with same-day appointments available
+                across Frankfurt and nearby areas.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
@@ -143,7 +156,28 @@ export default function Home() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="flex flex-wrap gap-4 mb-4">
+                <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl px-4 py-3">
+                  <ShieldCheck className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm font-medium">
+                    Certified & Insured
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl px-4 py-3">
+                  <Clock3 className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm font-medium">Same-Day Service</span>
+                </div>
+
+                <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl px-4 py-3">
+                  <Star className="w-5 h-5 text-amber-400" />
+                  <span className="text-sm font-medium">
+                    4.9★ Google Rating
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
                 <div>
                   <h3 className="text-3xl font-black text-amber-400">24/7</h3>
                   <p className="text-gray-400 text-sm mt-1">
@@ -152,41 +186,42 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <h3 className="text-3xl font-black text-amber-400">4.9★</h3>
-                  <p className="text-gray-400 text-sm mt-1">
-                    Customer Rating
-                  </p>
+                  <h3 className="text-3xl font-black text-amber-400">2,000+</h3>
+                  <p className="text-gray-400 text-sm mt-1">Completed Jobs</p>
                 </div>
 
                 <div>
-                  <h3 className="text-3xl font-black text-amber-400">2,000+</h3>
-                  <p className="text-gray-400 text-sm mt-1">
-                    Completed Jobs
-                  </p>
+                  <h3 className="text-3xl font-black text-amber-400">15+</h3>
+                  <p className="text-gray-400 text-sm mt-1">Years Experience</p>
                 </div>
               </div>
             </div>
 
             {/* RIGHT */}
-            <div className="relative">
+            <div className="relative group">
               <img
-                src="https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=1200&auto=format&fit=crop"
+                src="https://images.unsplash.com/photo-1544724569-5f546fd6f2b5?q=80&w=1200&auto=format&fit=crop"
                 alt="Electrician"
-                className="rounded-3xl shadow-2xl object-cover h-[650px] w-full"
+                className="rounded-3xl shadow-2xl object-cover h-[650px] w-full transition-transform duration-700 group-hover:scale-[1.02] brightness-95"
               />
 
-              <div className="absolute -bottom-6 -left-6 bg-white text-slate-900 rounded-2xl p-5 shadow-2xl max-w-xs">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                    <CheckCircle2 className="w-6 h-6 text-green-600" />
-                  </div>
+              <div className="absolute -bottom-6 -left-6 bg-white text-slate-900 rounded-2xl p-6 shadow-2xl max-w-sm border border-gray-100">
+                <div className="flex items-center gap-1 mb-4">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                </div>
 
-                  <div>
-                    <p className="font-bold">Same-Day Service</p>
-                    <p className="text-sm text-gray-500">
-                      Fast response guaranteed
-                    </p>
-                  </div>
+                <p className="text-sm text-gray-700 leading-relaxed mb-4">
+                  “Power outage fixed within 45 minutes. Very professional
+                  electrician and transparent pricing.”
+                </p>
+
+                <div>
+                  <p className="font-bold text-sm">Markus H.</p>
+                  <p className="text-xs text-gray-500">Frankfurt, Germany</p>
                 </div>
               </div>
             </div>
@@ -195,7 +230,7 @@ export default function Home() {
       </section>
 
       {/* TRUST STRIP */}
-      <section className="bg-white border-y border-gray-200 py-8">
+      <section className="bg-gradient-to-b from-white to-slate-50 border-y border-gray-100 py-8">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
             <ShieldCheck className="w-7 h-7 text-amber-400 mx-auto mb-3" />
@@ -232,7 +267,8 @@ export default function Home() {
             </h2>
 
             <p className="text-lg text-gray-600 leading-relaxed">
-              Reliable electrical services for homes, apartments, offices, and commercial properties.
+              Reliable electrical services for homes, apartments, offices, and
+              commercial properties.
             </p>
           </div>
 
@@ -240,17 +276,26 @@ export default function Home() {
             {services.map((service, index) => (
               <div
                 key={index}
-                className="bg-white rounded-3xl p-8 border border-gray-200 hover:shadow-2xl transition-all duration-300"
+                className="group bg-white rounded-3xl p-8 border border-gray-200 hover:border-amber-200 hover:-translate-y-2 hover:shadow-2xl transition-all duration-500"
               >
-                <div className="mb-6">{service.icon}</div>
+                <div className="mb-6 transition-transform duration-500 group-hover:scale-110">
+                  {service.icon}
+                </div>
 
                 <h3 className="text-2xl font-bold mb-4 text-slate-900">
                   {service.title}
                 </h3>
 
-                <p className="text-gray-600 leading-relaxed">
-                  {service.description}
-                </p>
+                <div>
+                  <p className="text-gray-600 leading-relaxed mb-6">
+                    {service.description}
+                  </p>
+
+                  <button className="flex items-center gap-2 text-sm font-semibold text-slate-900 group-hover:text-amber-500 transition-colors">
+                    Learn More
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -301,16 +346,17 @@ export default function Home() {
             Smart Booking Experience
           </p>
 
-          <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">
-            Get Instant Estimates With Our AI Assistant
+          <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
+            Describe Your Electrical Problem & Get an Instant Estimate
           </h2>
 
           <p className="text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto mb-10">
-            Describe your electrical issue, receive an instant estimate, and book your appointment in minutes.
+            Our smart booking assistant helps you get pricing, availability, and
+            appointment scheduling in under 2 minutes.
           </p>
 
-          <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105">
-            Start AI Chat
+          <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105 hover:shadow-amber-400/30">
+            Get Instant Estimate
           </button>
         </div>
       </section>
@@ -332,7 +378,7 @@ export default function Home() {
             {testimonials.map((testimonial, index) => (
               <div
                 key={index}
-                className="bg-white border border-gray-200 rounded-3xl p-8 hover:shadow-2xl transition-all duration-300"
+                className="group bg-white border border-gray-200 rounded-3xl p-8 hover:-translate-y-2 hover:border-amber-200 hover:shadow-2xl transition-all duration-500"
               >
                 <div className="flex gap-1 mb-6">
                   {[...Array(5)].map((_, i) => (
@@ -343,17 +389,24 @@ export default function Home() {
                   ))}
                 </div>
 
-                <p className="text-gray-600 leading-relaxed mb-8">
+                <p className="text-gray-600 leading-relaxed mb-8 text-lg italic">
                   “{testimonial.review}”
                 </p>
 
-                <div>
-                  <h4 className="font-bold text-slate-900">
-                    {testimonial.name}
-                  </h4>
-                  <p className="text-sm text-gray-500">
-                    {testimonial.location}
-                  </p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-bold text-slate-900">
+                      {testimonial.name}
+                    </h4>
+
+                    <p className="text-sm text-gray-500">
+                      {testimonial.location}
+                    </p>
+                  </div>
+
+                  <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                    Verified
+                  </div>
                 </div>
               </div>
             ))}
@@ -364,14 +417,16 @@ export default function Home() {
       {/* CTA */}
       <section id="contact" className="py-20 md:py-28 bg-white">
         <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-          <div className="bg-slate-900 rounded-[32px] p-10 md:p-16 text-white shadow-2xl">
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-6">
-              Need an Electrician Today?
+          <div className="bg-slate-900 rounded-[32px] p-10 md:p-16 text-white shadow-2xl border border-white/10 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-72 h-72 bg-amber-400/10 blur-3xl rounded-full"></div>
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
+              Fast, Safe & Professional Electrical Service When You Need It
+              Most
             </h2>
 
             <p className="text-lg text-gray-300 leading-relaxed mb-10 max-w-2xl mx-auto">
-              Contact our professional team for fast, safe, and reliable electrical services.
-            </p>
+  From emergency repairs to complete installations, our certified electricians are ready to help homes and businesses across Frankfurt.
+</p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105">
@@ -390,9 +445,7 @@ export default function Home() {
       <footer className="bg-slate-950 text-gray-400 py-10 border-t border-white/5">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
-            <h3 className="text-white font-bold text-lg mb-2">
-              ElektroFix
-            </h3>
+            <h3 className="text-white font-bold text-lg mb-2">ElektroFix</h3>
 
             <p className="text-sm">
               Professional Electrical Services Across Germany

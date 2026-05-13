@@ -17,3 +17,7 @@ body {
   --text-primary: #111827;
   --text-secondary: #4b5563;
 }
+
+html {
+  scroll-behavior: smooth;
+}
