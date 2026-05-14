@@ -127,7 +127,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\n\nconst pricingData = $('Pricing').first().json;\n\nconst busy = items\n  .filter(item =>\n    item.json.start &&\n    item.json.end\n  )\n  .map(item => ({\n    start: new Date(\n      item.json.start.dateTime || item.json.start.date\n    ),\n    end: new Date(\n      item.json.end.dateTime || item.json.end.date\n    ),\n  }));\n\nconst possibleSlots = [\n  \"2026-05-09T09:00:00\",\n  \"2026-05-09T10:00:00\",\n  \"2026-05-09T11:00:00\",\n  \"2026-05-09T14:00:00\",\n  \"2026-05-09T15:00:00\"\n];\n\nconst freeSlots = possibleSlots.filter(slot => {\n\n  const slotStart = new Date(slot);\n\n  const slotEnd = new Date(slot);\n  slotEnd.setHours(slotEnd.getHours() + 1);\n\n  return !busy.some(event => {\n\n    return (\n      slotStart.getTime() < event.end.getTime() &&\n      slotEnd.getTime() > event.start.getTime()\n    );\n\n  });\n\n});\n\nreturn {\n  json: {\n    reply: pricingData.reply,\n\n    service:\n      pricingData.service,\n\n    quantity:\n      pricingData.quantity,\n\n    urgency:\n      pricingData.urgency,\n\n    price:\n      pricingData.price,\n\n    customerName:\n      $('Webhook').first().json.body.customerName,\n\n    phone:\n      $('Webhook').first().json.body.phone,\n\n    email:\n      $('Webhook').first().json.body.email,\n\n    slots: freeSlots\n  }\n};"
+        "jsCode": "const items = $input.all();\nconst pricingData = $('Pricing').first().json;\n\n// Parse busy events from Google Calendar\nconst busy = items\n  .filter(item => item.json.start && item.json.end)\n  .map(item => ({\n    start: new Date(item.json.start.dateTime || item.json.start.date),\n    end:   new Date(item.json.end.dateTime   || item.json.end.date),\n  }));\n\n// German timezone\nconst TZ_OFFSET = \"+02:00\";\n\nconst possibleSlots = [];\nconst now = new Date();\n\n// Generate slots for next 7 days\nfor (let dayOffset = 0; dayOffset < 7; dayOffset++) {\n\n  const day = new Date(now);\n  day.setUTCDate(day.getUTCDate() + dayOffset);\n\n  for (let hour = 9; hour < 17; hour++) {\n\n    const pad = n => String(n).padStart(2, '0');\n\n    const y = day.getUTCFullYear();\n    const m = pad(day.getUTCMonth() + 1);\n    const d = pad(day.getUTCDate());\n\n    // German local time\n    const localISO =\n      `${y}-${m}-${d}T${pad(hour)}:00:00${TZ_OFFSET}`;\n\n    const slotStart = new Date(localISO);\n\n    if (slotStart <= now) continue;\n\n    const slotEnd =\n      new Date(slotStart.getTime() + 3600000);\n\n    const isBusy = busy.some(event =>\n      slotStart.getTime() < event.end.getTime() &&\n      slotEnd.getTime()   > event.start.getTime()\n    );\n\n    if (!isBusy) {\n\n      // Send clean format to frontend\n      possibleSlots.push(\n        `${y}-${m}-${d}T${pad(hour)}:00:00`\n      );\n\n    }\n  }\n}\n\nreturn {\n  json: {\n    reply: pricingData.reply,\n\n    service: pricingData.service,\n    quantity: pricingData.quantity,\n    urgency: pricingData.urgency,\n    price: pricingData.price,\n\n    customerName:\n      $('Webhook').first().json.body.customerName,\n\n    phone:\n      $('Webhook').first().json.body.phone,\n\n    email:\n      $('Webhook').first().json.body.email,\n\n    slots: possibleSlots\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -171,7 +171,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const selectedSlot =\n  $('Webhook').first().json.body.slot;\n\nconsole.log(\"VALIDATING SLOT:\", selectedSlot);\n\nconst items = $input.all();\n\nconst busy = items\n  .filter(item =>\n    item.json.start &&\n    item.json.end\n  )\n  .map(item => ({\n    start: new Date(\n      item.json.start.dateTime ||\n      item.json.start.date\n    ),\n    end: new Date(\n      item.json.end.dateTime ||\n      item.json.end.date\n    ),\n  }));\n\nconst slotStart = new Date(selectedSlot);\n\nconst slotEnd = new Date(selectedSlot);\nslotEnd.setHours(slotEnd.getHours() + 1);\n\nconst overlapping = busy.some(event => {\n\n  return (\n    slotStart.getTime() < event.end.getTime() &&\n    slotEnd.getTime() > event.start.getTime()\n  );\n\n});\n\nconsole.log(\"OVERLAPPING:\", overlapping);\n\nreturn {\n  json: {\n    slotAvailable: !overlapping,\n    selectedSlot,\n    debug: \"VALIDATE SLOT PASSED\"\n  }\n};"
+        "jsCode": "const selectedSlot =\n  $('Webhook').first().json.body.slot;\n\n// German timezone\nconst TZ_OFFSET = \"+02:00\";\n\n// Convert slot into German timezone\nconst slotWithTZ = selectedSlot + TZ_OFFSET;\n\nconst slotStart = new Date(slotWithTZ);\n\nconst slotEnd =\n  new Date(slotStart.getTime() + 3600000);\n\nconst items = $input.all();\n\nconst busy = items\n  .filter(item => item.json.start && item.json.end)\n  .map(item => ({\n    start: new Date(\n      item.json.start.dateTime ||\n      item.json.start.date\n    ),\n\n    end: new Date(\n      item.json.end.dateTime ||\n      item.json.end.date\n    ),\n  }));\n\nconst overlapping = busy.some(event =>\n\n  slotStart.getTime() < event.end.getTime() &&\n  slotEnd.getTime()   > event.start.getTime()\n\n);\n\nreturn {\n  json: {\n    slotAvailable: !overlapping,\n    selectedSlot,\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -226,8 +226,8 @@
           "cachedResultName": "N8n AI bot Test Calendar"
         },
         "returnAll": true,
-        "timeMin": "={{ DateTime.fromISO(\"2026-05-09T00:00:00\").toISO() }}",
-        "timeMax": "={{ DateTime.fromISO(\"2026-05-10T00:00:00\").toISO() }}",
+        "timeMin": "={{ DateTime.now().toISO() }}",
+        "timeMax": "={{ DateTime.now().plus({ days: 7 }).toISO() }}",
         "options": {}
       },
       "type": "n8n-nodes-base.googleCalendar",
@@ -256,8 +256,8 @@
           "cachedResultName": "N8n AI bot Test Calendar"
         },
         "returnAll": true,
-        "timeMin": "={{ DateTime.fromISO(\"2026-05-09T00:00:00\").toISO() }}",
-        "timeMax": "={{ DateTime.fromISO(\"2026-05-10T00:00:00\").toISO() }}",
+        "timeMin": "={{ DateTime.now().toISO() }}",
+        "timeMax": "={{ DateTime.now().plus({ days: 7 }).toISO() }}",
         "options": {}
       },
       "type": "n8n-nodes-base.googleCalendar",
@@ -511,7 +511,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "9186293d-74c1-4fb7-8fec-973a5399445a",
+  "versionId": "10e78666-2165-4d62-84bb-0501d1b3e647",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "7e64925587b3eed4f13db5d058cc8f992804c21a75e3a8ce064d5bafbb3e96ac"

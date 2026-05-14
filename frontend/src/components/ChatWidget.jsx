@@ -176,6 +176,18 @@ export default function ChatWidget() {
       console.log("BOOKING RESPONSE:", data);
 
       if (!res.ok || data.error) {
+        // Remove the conflicted slot from the slot picker so it's no longer selectable
+        if (res.status === 409) {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.slots
+                ? { ...msg, slots: msg.slots.filter((s) => s !== slot) }
+                : msg
+            )
+          );
+          setSelectedDay(null); // reset to day picker so they can pick another
+        }
+
         addMessage({
           sender: "bot",
           text: data.reply || "Booking failed. Please try again.",
