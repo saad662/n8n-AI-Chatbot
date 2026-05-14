@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 
+// ─── CLOUDINARY CONFIG ──────────────────────────────────────────────
+// Replace these with your actual Cloudinary values
+const CLOUDINARY_CLOUD_NAME = "dyjxikbhc";
+const CLOUDINARY_UPLOAD_PRESET = "chatbot_upload"; // unsigned upload preset
+// ────────────────────────────────────────────────────────────────────
+
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
 
@@ -13,8 +19,14 @@ export default function ChatWidget() {
   const [urgency, setUrgency] = useState("normal");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
+
+  // ── Photo upload state ──
+  const [photoFile, setPhotoFile] = useState(null); // raw File object
+  const [photoPreview, setPhotoPreview] = useState(null); // local blob URL for preview
+  const [photoUrl, setPhotoUrl] = useState(null); // Cloudinary URL after upload
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const fileInputRef = useRef(null);
+  // ────────────────────────
 
   const [messages, setMessages] = useState([
     {
@@ -39,14 +51,11 @@ export default function ChatWidget() {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
-  const isValidPhone = (phone) => {
-    return /^[0-9+\s()-]{7,20}$/.test(phone);
-  };
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth",
-    });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   useEffect(() => {
@@ -67,36 +76,19 @@ export default function ChatWidget() {
     if (e.key === "Enter") handleSubmitInput();
   };
 
-  // STEP HANDLERS
+  // ── STEP HANDLERS ──────────────────────────────────────────────────
+
   const handleName = (value) => {
     setCustomerName(value);
-
-    addMessage({
-      sender: "user",
-      text: value,
-    });
-
-    addMessage({
-      sender: "bot",
-      text: "What is your phone number?",
-    });
-
+    addMessage({ sender: "user", text: value });
+    addMessage({ sender: "bot", text: "What is your phone number?" });
     setStep("phone");
   };
 
   const handlePhone = (value) => {
     setPhone(value);
-
-    addMessage({
-      sender: "user",
-      text: value,
-    });
-
-    addMessage({
-      sender: "bot",
-      text: "What is your email?",
-    });
-
+    addMessage({ sender: "user", text: value });
+    addMessage({ sender: "bot", text: "What is your email?" });
     setStep("email");
   };
 
@@ -106,22 +98,11 @@ export default function ChatWidget() {
         sender: "bot",
         text: "Please enter a valid email address.",
       });
-
       return;
     }
-
     setEmail(value);
-
-    addMessage({
-      sender: "user",
-      text: value,
-    });
-
-    addMessage({
-      sender: "bot",
-      text: "What service do you need?",
-    });
-
+    addMessage({ sender: "user", text: value });
+    addMessage({ sender: "bot", text: "What service do you need?" });
     setStep("service");
   };
 
@@ -138,120 +119,6 @@ export default function ChatWidget() {
     }
   };
 
-  const handleBooking = async () => {
-    console.log("BOOK BUTTON CLICKED");
-
-    const res = await fetch("http://localhost:5000/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message: `${service} ${quantity || 1} ${urgency}`,
-      }),
-    });
-
-    const data = await res.json();
-
-    console.log(data);
-
-    setMessages((prev) => [
-      ...prev,
-      {
-        sender: "bot",
-        text: "Please choose a slot",
-        slots: data.slots || [],
-      },
-    ]);
-
-    setSelectedDay(null);
-    setStep("booked");
-  };
-
-  const handleSlotSelect = async (slot) => {
-    if (bookingLoading) return;
-
-    setBookingLoading(true);
-
-    const formattedSlot = new Date(slot).toLocaleString("en-DE", {
-      weekday: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    addMessage({
-      sender: "user",
-      text: formattedSlot,
-    });
-
-    try {
-      const res = await fetch("http://localhost:5000/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          action: "book_slot",
-          slot,
-          customerName,
-          phone,
-          email,
-          service,
-          quantity,
-          urgency,
-        }),
-      });
-
-      const data = await res.json();
-
-      console.log("BOOKING RESPONSE:", data);
-
-      if (!res.ok || data.error) {
-        // Remove the conflicted slot from the slot picker so it's no longer selectable
-        if (res.status === 409) {
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.slots
-                ? { ...msg, slots: msg.slots.filter((s) => s !== slot) }
-                : msg,
-            ),
-          );
-          setSelectedDay(null); // reset to day picker so they can pick another
-        }
-
-        addMessage({
-          sender: "bot",
-          text: data.reply || "Booking failed. Please try again.",
-        });
-
-        return;
-      }
-
-      addMessage({
-        sender: "bot",
-        text: `✅ Appointment Confirmed
-
-📅 ${formattedSlot}
-
-👤 ${customerName}
-🔧 ${service}
-
-A confirmation email will be sent shortly.`,
-      });
-
-      setStep("final");
-    } catch (err) {
-      console.error(err);
-
-      addMessage({
-        sender: "bot",
-        text: "Booking failed. Please try again.",
-      });
-    } finally {
-      setBookingLoading(false);
-    }
-  };
-
   const handleQuantity = (q) => {
     setQuantity(q);
     addMessage({ sender: "user", text: `${q}` });
@@ -262,22 +129,11 @@ A confirmation email will be sent shortly.`,
   const handleUrgency = async (u) => {
     setUrgency(u);
     addMessage({ sender: "user", text: u });
-
     setStep("loading");
-
-    console.log("SENDING TO N8N:", {
-      message: `
-    Service: ${service}
-    Quantity: ${quantity}
-    Urgency: ${u}
-  `,
-    });
 
     const res = await fetch("http://localhost:5000/api/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         customerName,
         phone,
@@ -290,30 +146,190 @@ A confirmation email will be sent shortly.`,
     });
 
     const data = await res.json();
-
-    console.log("N8N RESPONSE:", data);
-
     addMessage({ sender: "bot", text: data.reply });
 
-    setStep("final");
+    // ── After price shown, ask for optional photo ──
+    addMessage({
+      sender: "bot",
+      text: "📷 Would you like to send a photo? (e.g. your electrical board). This is completely optional.",
+    });
+    setStep("photo");
   };
+
+  // ── PHOTO HANDLERS ─────────────────────────────────────────────────
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Basic validation
+    if (!file.type.startsWith("image/")) {
+      addMessage({
+        sender: "bot",
+        text: "Please select an image file (JPG, PNG, etc.).",
+      });
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      addMessage({
+        sender: "bot",
+        text: "Image is too large. Please choose one under 10MB.",
+      });
+      return;
+    }
+
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+    setPhotoUrl(null); // reset any previous upload
+  };
+
+  const uploadToCloudinary = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+    formData.append("folder", "lutz-electrical");
+
+    const res = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+      { method: "POST", body: formData },
+    );
+
+    if (!res.ok) throw new Error("Cloudinary upload failed");
+    const data = await res.json();
+    return data.secure_url;
+  };
+
+  const handlePhotoSubmit = async () => {
+    if (!photoFile) return;
+
+    setPhotoUploading(true);
+    addMessage({ sender: "user", text: `📎 Photo: ${photoFile.name}` });
+
+    try {
+      const url = await uploadToCloudinary(photoFile);
+      setPhotoUrl(url);
+      addMessage({
+        sender: "bot",
+        text: "✅ Photo uploaded! We'll use it to better prepare for your visit.",
+      });
+    } catch {
+      addMessage({
+        sender: "bot",
+        text: "⚠️ Photo upload failed. You can still book without it.",
+      });
+    } finally {
+      setPhotoUploading(false);
+      setStep("final");
+      addMessage({
+        sender: "bot",
+        text: "Would you like to book an appointment?",
+      });
+    }
+  };
+
+  const handleSkipPhoto = () => {
+    addMessage({ sender: "user", text: "Skip photo" });
+    setStep("final");
+    addMessage({
+      sender: "bot",
+      text: "No problem! Would you like to book an appointment?",
+    });
+  };
+
+  // ── BOOKING ────────────────────────────────────────────────────────
+
+  const handleBooking = async () => {
+    const res = await fetch("http://localhost:5000/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        message: `${service} ${quantity || 1} ${urgency}`,
+      }),
+    });
+
+    const data = await res.json();
+    setMessages((prev) => [
+      ...prev,
+      { sender: "bot", text: "Please choose a slot", slots: data.slots || [] },
+    ]);
+    setSelectedDay(null);
+    setStep("booked");
+  };
+
+  const handleSlotSelect = async (slot) => {
+    if (bookingLoading) return;
+    setBookingLoading(true);
+
+    const formattedSlot = new Date(slot).toLocaleString("en-DE", {
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    addMessage({ sender: "user", text: formattedSlot });
+
+    try {
+      const res = await fetch("http://localhost:5000/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "book_slot",
+          slot,
+          customerName,
+          phone,
+          email,
+          service,
+          quantity,
+          urgency,
+          photoUrl: photoUrl || null, // ← photo URL sent to backend/n8n
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        if (res.status === 409) {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.slots
+                ? { ...msg, slots: msg.slots.filter((s) => s !== slot) }
+                : msg,
+            ),
+          );
+          setSelectedDay(null);
+        }
+        addMessage({
+          sender: "bot",
+          text: data.reply || "Booking failed. Please try again.",
+        });
+        return;
+      }
+
+      addMessage({
+        sender: "bot",
+        text: `✅ Appointment Confirmed\n\n📅 ${formattedSlot}\n\n👤 ${customerName}\n🔧 ${service}\n\nA confirmation email will be sent shortly.`,
+      });
+
+      setStep("final_done");
+    } catch (err) {
+      console.error(err);
+      addMessage({ sender: "bot", text: "Booking failed. Please try again." });
+    } finally {
+      setBookingLoading(false);
+    }
+  };
+
+  // ── RENDER ─────────────────────────────────────────────────────────
 
   return (
     <>
-      <style>
-        {`
+      <style>{`
         @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(8px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+          from { opacity: 0; transform: translateY(8px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-      `}
-      </style>
+      `}</style>
+
       {/* FLOATING BUTTON */}
       <div
         onClick={() => setOpen(!open)}
@@ -344,20 +360,18 @@ A confirmation email will be sent shortly.`,
                 className={`flex ${msg.sender === "user" ? "justify-end" : ""}`}
               >
                 <div
-                  className={`px-4 py-2 rounded-2xl shadow text-sm max-w-[75%]
-  animate-[fadeIn_0.25s_ease-out]
-  ${
-    msg.sender === "user"
-      ? "bg-yellow-400 text-black"
-      : "bg-white text-gray-800"
-  }`}
+                  className={`px-4 py-2 rounded-2xl shadow text-sm max-w-[75%] animate-[fadeIn_0.25s_ease-out] ${
+                    msg.sender === "user"
+                      ? "bg-yellow-400 text-black"
+                      : "bg-white text-gray-800"
+                  }`}
                 >
-                  <div>{msg.text}</div>
+                  <div style={{ whiteSpace: "pre-line" }}>{msg.text}</div>
 
+                  {/* SLOT PICKER */}
                   {msg.slots &&
                     msg.slots.length > 0 &&
                     (() => {
-                      // Group slots by day label
                       const grouped = {};
                       [...new Set(msg.slots)].forEach((slot) => {
                         const dayLabel = new Date(slot).toLocaleString(
@@ -375,7 +389,6 @@ A confirmation email will be sent shortly.`,
 
                       return (
                         <div className="mt-3 flex flex-col gap-2">
-                          {/* Day picker */}
                           {!selectedDay && (
                             <>
                               <p className="text-xs text-gray-500 font-medium mb-1">
@@ -395,7 +408,6 @@ A confirmation email will be sent shortly.`,
                             </>
                           )}
 
-                          {/* Time picker */}
                           {selectedDay && (
                             <>
                               <div className="flex items-center gap-2 mb-1">
@@ -436,12 +448,12 @@ A confirmation email will be sent shortly.`,
                 </div>
               </div>
             ))}
-
             <div ref={messagesEndRef} />
           </div>
 
           {/* OPTIONS AREA */}
           <div className="p-2.5 border-t bg-white space-y-2">
+            {/* Text input steps */}
             {(step === "name" || step === "phone" || step === "email") && (
               <div className="flex gap-2">
                 <input
@@ -459,7 +471,6 @@ A confirmation email will be sent shortly.`,
                   }
                   className="flex-1 border rounded-xl px-3 py-2 text-sm outline-none"
                 />
-
                 <button
                   onClick={handleSubmitInput}
                   className="bg-yellow-400 px-4 py-2 rounded-xl text-sm font-semibold"
@@ -468,6 +479,7 @@ A confirmation email will be sent shortly.`,
                 </button>
               </div>
             )}
+
             {step === "service" && (
               <div className="flex flex-wrap gap-2">
                 {services.map((s, i) => (
@@ -526,8 +538,88 @@ A confirmation email will be sent shortly.`,
                     style={{ animationDelay: "0.3s" }}
                   ></span>
                 </div>
-
                 <span>Calculating price...</span>
+              </div>
+            )}
+
+            {/* ── PHOTO UPLOAD STEP ── */}
+            {step === "photo" && (
+              <div className="flex flex-col gap-2">
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+
+                {/* Preview thumbnail */}
+                {photoPreview && (
+                  <div className="relative w-full h-24 rounded-xl overflow-hidden border border-gray-200">
+                    <img
+                      src={photoPreview}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={() => {
+                        setPhotoFile(null);
+                        setPhotoPreview(null);
+                        if (fileInputRef.current)
+                          fileInputRef.current.value = "";
+                      }}
+                      className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex gap-2">
+                  {/* Choose photo button */}
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex-1 bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-1"
+                  >
+                    📷 {photoFile ? "Change photo" : "Choose photo"}
+                  </button>
+
+                  {/* Send photo button — only visible once a file is chosen */}
+                  {photoFile && !photoUploading && (
+                    <button
+                      onClick={handlePhotoSubmit}
+                      className="bg-yellow-400 hover:bg-yellow-500 px-3 py-2 rounded-xl text-xs font-semibold transition"
+                    >
+                      Send
+                    </button>
+                  )}
+
+                  {/* Uploading spinner */}
+                  {photoUploading && (
+                    <div className="flex items-center gap-1 px-3 py-2 text-xs text-gray-400">
+                      <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"></span>
+                      <span
+                        className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.15s" }}
+                      ></span>
+                      <span
+                        className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.3s" }}
+                      ></span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Skip button */}
+                {!photoUploading && (
+                  <button
+                    onClick={handleSkipPhoto}
+                    className="text-xs text-gray-400 hover:text-gray-600 underline text-center"
+                  >
+                    Skip, no photo needed
+                  </button>
+                )}
               </div>
             )}
 
