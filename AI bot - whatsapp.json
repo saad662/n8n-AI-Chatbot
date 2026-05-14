@@ -149,7 +149,7 @@
         "start": "={{ $json.selectedSlot }}",
         "end": "={{ new Date(new Date($json.selectedSlot).getTime() + 3600000).toISOString().slice(0,19) }}",
         "additionalFields": {
-          "description": "={{\n\"Service: \" + $('Webhook').first().json.body.service +\n\"\\nUrgency: \" + $('Webhook').first().json.body.urgency +\n\"\\nPhone: \" + $('Webhook').first().json.body.phone +\n\"\\nEmail: \" + $('Webhook').first().json.body.email\n}}",
+          "description": "={{\n\"Service: \" + $('Webhook').first().json.body.service +\n\"\\nUrgency: \" + $('Webhook').first().json.body.urgency +\n\"\\nPhone: \" + $('Webhook').first().json.body.phone +\n\"\\nEmail: \" + $('Webhook').first().json.body.email +\n\"\\nPhoto: \" + $('Webhook').first().json.body.photoUrl\n}}",
           "summary": "={{ \"Electrical Appointment - \" + $('Webhook').first().json.body.customerName }}"
         }
       },
@@ -511,7 +511,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "10e78666-2165-4d62-84bb-0501d1b3e647",
+  "versionId": "31546d3c-fbfd-4f80-a997-558087c6b982",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "7e64925587b3eed4f13db5d058cc8f992804c21a75e3a8ce064d5bafbb3e96ac"
