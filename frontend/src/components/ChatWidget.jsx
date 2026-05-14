@@ -12,6 +12,7 @@ export default function ChatWidget() {
   const [quantity, setQuantity] = useState(null);
   const [urgency, setUrgency] = useState("normal");
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
 
   const [messages, setMessages] = useState([
     {
@@ -132,6 +133,7 @@ export default function ChatWidget() {
       },
     ]);
 
+    setSelectedDay(null);
     setStep("booked");
   };
 
@@ -140,9 +142,15 @@ export default function ChatWidget() {
 
     setBookingLoading(true);
 
+    const formattedSlot = new Date(slot).toLocaleString("en-DE", {
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
     addMessage({
       sender: "user",
-      text: slot,
+      text: formattedSlot,
     });
 
     try {
@@ -167,25 +175,23 @@ export default function ChatWidget() {
 
       console.log("BOOKING RESPONSE:", data);
 
-      // BACKEND FAILURE
       if (!res.ok || data.error) {
         addMessage({
           sender: "bot",
-          text: data.reply || "Booking failed. Please try another slot.",
+          text: data.reply || "Booking failed. Please try again.",
         });
 
         return;
       }
 
-      // SUCCESS
       addMessage({
         sender: "bot",
-        text: data.reply || `Appointment booked for ${slot} ✅`,
+        text: `Appointment booked for ${formattedSlot} ✅`,
       });
 
       setStep("final");
     } catch (err) {
-      console.error("BOOKING ERROR:", err);
+      console.error(err);
 
       addMessage({
         sender: "bot",
@@ -283,28 +289,76 @@ export default function ChatWidget() {
                 >
                   <div>{msg.text}</div>
 
-                  {msg.slots && msg.slots.length > 0 && (
-                    <div className="mt-3 flex flex-col gap-2">
-                      {[...new Set(msg.slots)].map((slot, idx) => (
-                        <button
-                          key={idx}
-                          disabled={bookingLoading}
-                          onClick={() => handleSlotSelect(slot)}
-                          className={`px-3 py-2 rounded-xl text-xs font-medium transition ${
-                            bookingLoading
-                              ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                              : "bg-yellow-400 text-black hover:bg-yellow-300"
-                          }`}
-                        >
-                          {new Date(slot).toLocaleString("en-DE", {
-                            weekday: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {msg.slots && msg.slots.length > 0 && (() => {
+                    // Group slots by day label
+                    const grouped = {};
+                    [...new Set(msg.slots)].forEach((slot) => {
+                      const dayLabel = new Date(slot).toLocaleString("en-DE", {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      });
+                      if (!grouped[dayLabel]) grouped[dayLabel] = [];
+                      grouped[dayLabel].push(slot);
+                    });
+                    const days = Object.keys(grouped);
+
+                    return (
+                      <div className="mt-3 flex flex-col gap-2">
+                        {/* Day picker */}
+                        {!selectedDay && (
+                          <>
+                            <p className="text-xs text-gray-500 font-medium mb-1">Choose a day:</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {days.map((day, idx) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setSelectedDay(day)}
+                                  className="bg-yellow-400 text-black hover:bg-yellow-300 px-3 py-1.5 rounded-xl text-xs font-medium transition"
+                                >
+                                  {day}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
+
+                        {/* Time picker */}
+                        {selectedDay && (
+                          <>
+                            <div className="flex items-center gap-2 mb-1">
+                              <button
+                                onClick={() => setSelectedDay(null)}
+                                className="text-xs text-gray-400 hover:text-gray-600 underline"
+                              >
+                                ← Back
+                              </button>
+                              <p className="text-xs text-gray-500 font-medium">{selectedDay} — choose a time:</p>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {grouped[selectedDay].map((slot, idx) => (
+                                <button
+                                  key={idx}
+                                  disabled={bookingLoading}
+                                  onClick={() => handleSlotSelect(slot)}
+                                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
+                                    bookingLoading
+                                      ? "bg-gray-300 text-gray-400 cursor-not-allowed"
+                                      : "bg-yellow-400 text-black hover:bg-yellow-300"
+                                  }`}
+                                >
+                                  {new Date(slot).toLocaleString("en-DE", {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </button>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
