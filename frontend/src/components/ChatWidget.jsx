@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function ChatWidget() {
   const [open, setOpen] = useState(false);
@@ -13,6 +13,8 @@ export default function ChatWidget() {
   const [urgency, setUrgency] = useState("normal");
   const [bookingLoading, setBookingLoading] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   const [messages, setMessages] = useState([
     {
@@ -32,6 +34,26 @@ export default function ChatWidget() {
   const addMessage = (msg) => {
     setMessages((prev) => [...prev, msg]);
   };
+
+  const isValidEmail = (email) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const isValidPhone = (phone) => {
+    return /^[0-9+\s()-]{7,20}$/.test(phone);
+  };
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages]);
+
+  useEffect(() => {
+    if (step === "name" || step === "phone" || step === "email") {
+      inputRef.current?.focus();
+    }
+  }, [step]);
 
   const handleSubmitInput = () => {
     if (!input.trim()) return;
@@ -79,6 +101,15 @@ export default function ChatWidget() {
   };
 
   const handleEmail = (value) => {
+    if (!isValidEmail(value)) {
+      addMessage({
+        sender: "bot",
+        text: "Please enter a valid email address.",
+      });
+
+      return;
+    }
+
     setEmail(value);
 
     addMessage({
@@ -182,8 +213,8 @@ export default function ChatWidget() {
             prev.map((msg) =>
               msg.slots
                 ? { ...msg, slots: msg.slots.filter((s) => s !== slot) }
-                : msg
-            )
+                : msg,
+            ),
           );
           setSelectedDay(null); // reset to day picker so they can pick another
         }
@@ -198,7 +229,14 @@ export default function ChatWidget() {
 
       addMessage({
         sender: "bot",
-        text: `Appointment booked for ${formattedSlot} ✅`,
+        text: `✅ Appointment Confirmed
+
+📅 ${formattedSlot}
+
+👤 ${customerName}
+🔧 ${service}
+
+A confirmation email will be sent shortly.`,
       });
 
       setStep("final");
@@ -262,6 +300,20 @@ export default function ChatWidget() {
 
   return (
     <>
+      <style>
+        {`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}
+      </style>
       {/* FLOATING BUTTON */}
       <div
         onClick={() => setOpen(!open)}
@@ -293,6 +345,7 @@ export default function ChatWidget() {
               >
                 <div
                   className={`px-4 py-2 rounded-2xl shadow text-sm max-w-[75%]
+  animate-[fadeIn_0.25s_ease-out]
   ${
     msg.sender === "user"
       ? "bg-yellow-400 text-black"
@@ -301,79 +354,90 @@ export default function ChatWidget() {
                 >
                   <div>{msg.text}</div>
 
-                  {msg.slots && msg.slots.length > 0 && (() => {
-                    // Group slots by day label
-                    const grouped = {};
-                    [...new Set(msg.slots)].forEach((slot) => {
-                      const dayLabel = new Date(slot).toLocaleString("en-DE", {
-                        weekday: "short",
-                        month: "short",
-                        day: "numeric",
+                  {msg.slots &&
+                    msg.slots.length > 0 &&
+                    (() => {
+                      // Group slots by day label
+                      const grouped = {};
+                      [...new Set(msg.slots)].forEach((slot) => {
+                        const dayLabel = new Date(slot).toLocaleString(
+                          "en-DE",
+                          {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                          },
+                        );
+                        if (!grouped[dayLabel]) grouped[dayLabel] = [];
+                        grouped[dayLabel].push(slot);
                       });
-                      if (!grouped[dayLabel]) grouped[dayLabel] = [];
-                      grouped[dayLabel].push(slot);
-                    });
-                    const days = Object.keys(grouped);
+                      const days = Object.keys(grouped);
 
-                    return (
-                      <div className="mt-3 flex flex-col gap-2">
-                        {/* Day picker */}
-                        {!selectedDay && (
-                          <>
-                            <p className="text-xs text-gray-500 font-medium mb-1">Choose a day:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {days.map((day, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => setSelectedDay(day)}
-                                  className="bg-yellow-400 text-black hover:bg-yellow-300 px-3 py-1.5 rounded-xl text-xs font-medium transition"
-                                >
-                                  {day}
-                                </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
+                      return (
+                        <div className="mt-3 flex flex-col gap-2">
+                          {/* Day picker */}
+                          {!selectedDay && (
+                            <>
+                              <p className="text-xs text-gray-500 font-medium mb-1">
+                                Choose a day:
+                              </p>
+                              <div className="flex flex-wrap gap-1.5">
+                                {days.map((day, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => setSelectedDay(day)}
+                                    className="px-4 py-2 rounded-2xl text-xs font-semibold bg-white border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 shadow-sm"
+                                  >
+                                    {day}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
 
-                        {/* Time picker */}
-                        {selectedDay && (
-                          <>
-                            <div className="flex items-center gap-2 mb-1">
-                              <button
-                                onClick={() => setSelectedDay(null)}
-                                className="text-xs text-gray-400 hover:text-gray-600 underline"
-                              >
-                                ← Back
-                              </button>
-                              <p className="text-xs text-gray-500 font-medium">{selectedDay} — choose a time:</p>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {grouped[selectedDay].map((slot, idx) => (
+                          {/* Time picker */}
+                          {selectedDay && (
+                            <>
+                              <div className="flex items-center gap-2 mb-1">
                                 <button
-                                  key={idx}
-                                  disabled={bookingLoading}
-                                  onClick={() => handleSlotSelect(slot)}
-                                  className={`px-3 py-1.5 rounded-xl text-xs font-medium transition ${
-                                    bookingLoading
-                                      ? "bg-gray-300 text-gray-400 cursor-not-allowed"
-                                      : "bg-yellow-400 text-black hover:bg-yellow-300"
-                                  }`}
+                                  onClick={() => setSelectedDay(null)}
+                                  className="text-xs text-gray-400 hover:text-gray-600 underline"
                                 >
-                                  {new Date(slot).toLocaleString("en-DE", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
+                                  ← Back
                                 </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })()}
+                                <p className="text-xs text-gray-500 font-medium">
+                                  {selectedDay} — choose a time:
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {grouped[selectedDay].map((slot, idx) => (
+                                  <button
+                                    key={idx}
+                                    disabled={bookingLoading}
+                                    onClick={() => handleSlotSelect(slot)}
+                                    className={`min-w-[72px] px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-200 shadow-sm border ${
+                                      bookingLoading
+                                        ? "bg-gray-300 text-gray-400 cursor-not-allowed border-gray-300"
+                                        : "bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-105 border-yellow-500"
+                                    }`}
+                                  >
+                                    {new Date(slot).toLocaleString("en-DE", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })()}
                 </div>
               </div>
             ))}
+
+            <div ref={messagesEndRef} />
           </div>
 
           {/* OPTIONS AREA */}
@@ -382,6 +446,7 @@ export default function ChatWidget() {
               <div className="flex gap-2">
                 <input
                   type="text"
+                  ref={inputRef}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
@@ -449,7 +514,21 @@ export default function ChatWidget() {
             )}
 
             {step === "loading" && (
-              <div className="text-xs text-gray-500">Calculating price...</div>
+              <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"></span>
+                  <span
+                    className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.15s" }}
+                  ></span>
+                  <span
+                    className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.3s" }}
+                  ></span>
+                </div>
+
+                <span>Calculating price...</span>
+              </div>
             )}
 
             {step === "final" && (
