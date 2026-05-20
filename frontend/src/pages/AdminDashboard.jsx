@@ -97,7 +97,7 @@ export default function AdminDashboard() {
     if (activeTab !== "calendar") return;
     setCalendarLoading(true);
     setCalendarError(null);
-    fetch("http://localhost:5000/api/calendar-events")
+    fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/calendar-events")
       .then(r => r.json())
       .then(data => { setCalendarEvents(data.events || []); setCalendarLoading(false); })
       .catch(() => { setCalendarError("Could not load Google Calendar events."); setCalendarLoading(false); });
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
   function refreshCalendar() {
     setCalendarLoading(true);
     setCalendarError(null);
-    fetch("http://localhost:5000/api/calendar-events")
+    fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/calendar-events")
       .then(r => r.json())
       .then(d => { setCalendarEvents(d.events || []); setCalendarLoading(false); })
       .catch(() => { setCalendarError("Could not load events."); setCalendarLoading(false); });
