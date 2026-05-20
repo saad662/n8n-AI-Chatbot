@@ -18,23 +18,55 @@ import {
   ShieldCheck,
 } from "lucide-react";
 
-// ─── SEED DATA ────────────────────────────────────────────────────────
-const SEED_LEADS = [
-  { id: "1", customerName: "Marco Bauer", phone: "+49 170 1234567", email: "marco.bauer@email.de", service: "Wiring", quantity: 10, urgency: "normal", price: 320, slot: "2025-05-19T09:00:00", status: "Booked", photoUrl: null, createdAt: "2025-05-18T08:00:00" },
-  { id: "2", customerName: "Julia Hoffmann", phone: "+49 160 9876543", email: "julia.h@web.de", service: "Inspection", quantity: 1, urgency: "urgent", price: 40, slot: "2025-05-19T11:00:00", status: "Completed", photoUrl: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400", createdAt: "2025-05-18T09:30:00" },
-  { id: "3", customerName: "Saad Amin", phone: "+49 151 5551234", email: "saadamin630362@gmail.com", service: "Socket installation", quantity: 5, urgency: "normal", price: 150, slot: "2025-05-20T10:00:00", status: "Booked", photoUrl: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=400", createdAt: "2025-05-18T11:00:00" },
-  { id: "4", customerName: "Lisa Müller", phone: "+49 176 3334455", email: "lisa.m@gmail.com", service: "Light installation", quantity: 3, urgency: "normal", price: 90, slot: "2025-05-20T14:00:00", status: "Pending", photoUrl: null, createdAt: "2025-05-18T13:00:00" },
-  { id: "5", customerName: "Thomas Klein", phone: "+49 178 6667788", email: "thomas.k@outlook.de", service: "Emergency repair", quantity: 1, urgency: "urgent", price: 180, slot: "2025-05-21T08:00:00", status: "Booked", photoUrl: "https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400", createdAt: "2025-05-19T07:00:00" },
-  { id: "6", customerName: "Anna Schmidt", phone: "+49 152 9998877", email: "anna.s@email.de", service: "Wiring", quantity: 20, urgency: "normal", price: 600, slot: "2025-05-22T09:00:00", status: "Pending", photoUrl: null, createdAt: "2025-05-19T10:00:00" },
-  { id: "7", customerName: "Felix Wagner", phone: "+49 173 1112223", email: "felix.w@web.de", service: "Inspection", quantity: 1, urgency: "normal", price: 40, slot: "2025-05-22T13:00:00", status: "Completed", photoUrl: null, createdAt: "2025-05-19T12:00:00" },
-];
+// ─── SUPABASE CONFIG ──────────────────────────────────────────────────
+const SUPABASE_URL = "https://cthzexnthkybvoebwyth.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII";
 
-function initLeads() {
-  // Only seed if nothing exists at all — never overwrite real leads from ChatWidget
-  const existing = localStorage.getItem("lutz_leads");
-  if (!existing) {
-    localStorage.setItem("lutz_leads", JSON.stringify(SEED_LEADS));
+// ── Fetch all leads from Supabase ─────────────────────────────────────
+async function fetchLeadsFromSupabase() {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/leads?order=created_at.desc`, {
+    headers: {
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+  });
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error("Supabase fetch error:", res.status, errText);
+    throw new Error(`Failed to fetch leads (${res.status}): ${errText}`);
   }
+  const rows = await res.json();
+  console.log("Supabase leads raw response:", rows);
+  // Map snake_case DB columns → camelCase used throughout the dashboard
+  return rows.map(r => ({
+    id:           String(r.id),
+    customerName: r.customer_name,
+    phone:        r.phone,
+    email:        r.email,
+    service:      r.service,
+    quantity:     r.quantity,
+    urgency:      r.urgency,
+    price:        r.price,
+    slot:         r.slot,
+    status:       r.status,
+    photoUrl:     r.photo_url,
+    createdAt:    r.created_at,
+  }));
+}
+
+// ── Update a lead's status in Supabase ───────────────────────────────
+async function updateLeadStatusInSupabase(id, newStatus) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/leads?id=eq.${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Prefer": "return=minimal",
+    },
+    body: JSON.stringify({ status: newStatus }),
+  });
+  if (!res.ok) throw new Error("Failed to update lead status");
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────
@@ -84,14 +116,22 @@ export default function AdminDashboard() {
   const [lightboxImg, setLightboxImg]   = useState(null);
   const [weekBase, setWeekBase]         = useState(new Date());
 
+  const [leadsLoading, setLeadsLoading]       = useState(false);
+  const [leadsError, setLeadsError]           = useState(null);
+
   const [calendarEvents, setCalendarEvents]   = useState([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
   const [calendarError, setCalendarError]     = useState(null);
 
-  useEffect(() => {
-    initLeads();
-    setLeads(JSON.parse(localStorage.getItem("lutz_leads") || "[]").reverse());
-  }, []);
+  function loadLeads() {
+    setLeadsLoading(true);
+    setLeadsError(null);
+    fetchLeadsFromSupabase()
+      .then(rows => { setLeads(rows); setLeadsLoading(false); })
+      .catch(err  => { setLeadsError(err.message); setLeadsLoading(false); });
+  }
+
+  useEffect(() => { loadLeads(); }, []);
 
   useEffect(() => {
     if (activeTab !== "calendar") return;
@@ -156,15 +196,13 @@ export default function AdminDashboard() {
   }
 
   function updateStatus(id, newStatus) {
-    const all     = JSON.parse(localStorage.getItem("lutz_leads") || "[]");
-    const updated = all.map(l => l.id === id ? { ...l, status: newStatus } : l);
-    localStorage.setItem("lutz_leads", JSON.stringify(updated));
-    setLeads(updated.reverse());
+    updateLeadStatusInSupabase(id, newStatus)
+      .then(() => setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l)))
+      .catch(err => console.error("Status update failed:", err));
   }
 
   function exportCSV() {
-    const data = JSON.parse(localStorage.getItem("lutz_leads") || "[]");
-    const csv  = ["Name,Phone,Email,Service,Price,Urgency,Slot,Status", ...data.map(l => `${l.customerName},${l.phone},${l.email},${l.service},${l.price},${l.urgency},${l.slot},${l.status}`)].join("\n");
+    const csv  = ["Name,Phone,Email,Service,Price,Urgency,Slot,Status", ...leads.map(l => `${l.customerName},${l.phone},${l.email},${l.service},${l.price},${l.urgency},${l.slot},${l.status}`)].join("\n");
     const a    = document.createElement("a");
     a.href     = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     a.download = "lutz_leads.csv";
@@ -295,10 +333,33 @@ export default function AdminDashboard() {
         {activeTab === "leads" && (
           <div>
             {/* Section heading */}
-            <div className="mb-6">
-              <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Customer Leads</p>
-              <h3 className="text-2xl font-black tracking-tight text-slate-900">All Bookings</h3>
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Customer Leads</p>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900">All Bookings</h3>
+              </div>
+              <button
+                onClick={loadLeads}
+                disabled={leadsLoading}
+                className="flex items-center gap-2 bg-white border border-gray-200 hover:border-amber-300 hover:bg-amber-50 text-gray-600 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-300 disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${leadsLoading ? "animate-spin" : ""}`} />
+                Refresh
+              </button>
             </div>
+
+            {/* Leads loading / error states */}
+            {leadsLoading && (
+              <div className="flex items-center gap-3 text-gray-500 text-sm mb-4 bg-white rounded-2xl border border-gray-200 px-5 py-4">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse inline-block" />
+                Loading leads from database…
+              </div>
+            )}
+            {leadsError && !leadsLoading && (
+              <div className="text-red-600 text-sm mb-4 bg-red-50 rounded-2xl border border-red-200 px-5 py-4">
+                ⚠️ {leadsError} — Check your Supabase connection.
+              </div>
+            )}
 
             {/* Filters */}
             <div className="bg-white rounded-3xl border border-gray-200 p-5 mb-6 flex flex-wrap gap-3 items-center">
