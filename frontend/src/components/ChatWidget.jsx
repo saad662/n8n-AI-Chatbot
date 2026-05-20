@@ -5,12 +5,15 @@ const CLOUDINARY_CLOUD_NAME = "dyjxikbhc";
 const CLOUDINARY_UPLOAD_PRESET = "chatbot_upload";
 // ────────────────────────────────────────────────────────────────────
 
-// ── Save a new lead into localStorage ("lutz_leads") ────────────────
-function saveLeadToStorage({ customerName, phone, email, service, quantity, urgency, price, slot, photoUrl }) {
-  const existing = JSON.parse(localStorage.getItem("lutz_leads") || "[]");
+// ─── SUPABASE CONFIG ─────────────────────────────────────────────────
+const SUPABASE_URL = "https://cthzexnthkybvoebwyth.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII"; // ← replace this
+// ─────────────────────────────────────────────────────────────────────
+
+// ── Save a new lead into Supabase ("leads" table) ───────────────────
+async function saveLeadToSupabase({ customerName, phone, email, service, quantity, urgency, price, slot, photoUrl }) {
   const newLead = {
-    id: Date.now().toString(),
-    customerName,
+    customer_name: customerName,
     phone,
     email,
     service,
@@ -19,15 +22,24 @@ function saveLeadToStorage({ customerName, phone, email, service, quantity, urge
     price: price || 0,
     slot,
     status: "Booked",
-    photoUrl: photoUrl || null,
-    createdAt: new Date().toISOString(),
+    photo_url: photoUrl || null,
   };
-  // Avoid duplicate slots for same customer
-  const alreadyExists = existing.some(
-    (l) => l.customerName === customerName && l.slot === slot
-  );
-  if (!alreadyExists) {
-    localStorage.setItem("lutz_leads", JSON.stringify([...existing, newLead]));
+
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/leads`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "apikey": SUPABASE_ANON_KEY,
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+      "Prefer": "return=minimal",
+    },
+    body: JSON.stringify(newLead),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error("Supabase insert failed:", err);
+    throw new Error("Failed to save lead to Supabase");
   }
 }
 
@@ -306,20 +318,23 @@ export default function ChatWidget() {
         return;
       }
 
-      // ── Save the confirmed lead to localStorage so AdminDashboard picks it up ──
-      saveLeadToStorage({
-        customerName,
-        phone,
-        email,
-        service,
-        quantity,
-        urgency,
-        price,       // ← the number we parsed from the backend reply
-        slot,
-        photoUrl: photoUrl || null,
-      });
-      // ──────────────────────────────────────────────────────────────────────────
-
+      // Save the confirmed lead to Supabase
+      // Save the confirmed lead to Supabase
+      try {
+        await saveLeadToSupabase({
+          customerName,
+          phone,
+          email,
+          service,
+          quantity,
+          urgency,
+          price,
+          slot,
+          photoUrl: photoUrl || null,
+        });
+      } catch (saveErr) {
+        console.error("Lead save error:", saveErr);
+      }
       addMessage({
         sender: "bot",
         text: `✅ Appointment Confirmed\n\n📅 ${formattedSlot}\n\n👤 ${customerName}\n🔧 ${service}\n\nA confirmation email will be sent shortly.`,
