@@ -358,6 +358,10 @@ export default function ChatWidget() {
           from { opacity: 0; transform: translateY(8px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes slideUp {
+          from { transform: translateY(100%); }
+          to   { transform: translateY(0); }
+        }
       `}</style>
 
       {/* FLOATING BUTTON */}
@@ -368,9 +372,17 @@ export default function ChatWidget() {
         ⚡
       </div>
 
+      {/* MOBILE BACKDROP */}
+      {open && (
+        <div
+          className="fixed inset-0 z-[9998] bg-black/40 sm:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
       {/* CHAT WINDOW */}
       {open && (
-        <div className="fixed bottom-20 right-6 z-[9999] w-[320px] h-[420px] bg-white shadow-2xl rounded-2xl flex flex-col overflow-hidden border border-gray-200">
+        <div className="fixed bottom-0 left-0 right-0 h-[75%] sm:inset-auto sm:bottom-20 sm:right-6 sm:left-auto z-[9999] w-full sm:w-[320px] sm:h-[420px] bg-white shadow-2xl rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden border-0 sm:border sm:border-gray-200 [animation:slideUp_0.3s_ease-out] sm:[animation:none]">
           {/* HEADER */}
           <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-4 py-2.5 font-semibold flex items-center justify-between">
             <span>⚡ Lutz Electrical</span>
@@ -462,7 +474,7 @@ export default function ChatWidget() {
           </div>
 
           {/* OPTIONS AREA */}
-          <div className="p-2.5 border-t bg-white space-y-2">
+          <div className="p-2.5 pb-[max(10px,env(safe-area-inset-bottom))] border-t bg-white space-y-2">
             {(step === "name" || step === "phone" || step === "email") && (
               <div className="flex gap-2">
                 <input
