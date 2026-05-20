@@ -157,7 +157,7 @@ export default function ChatWidget() {
     addMessage({ sender: "user", text: u });
     setStep("loading");
 
-    const res = await fetch("http://localhost:5000/api/chat", {
+    const res = await fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -244,7 +244,7 @@ export default function ChatWidget() {
   // ── BOOKING ────────────────────────────────────────────────────────
 
   const handleBooking = async () => {
-    const res = await fetch("http://localhost:5000/api/chat", {
+    const res = await fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -273,7 +273,7 @@ export default function ChatWidget() {
     addMessage({ sender: "user", text: formattedSlot });
 
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
+      const res = await fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
