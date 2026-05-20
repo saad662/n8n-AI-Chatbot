@@ -148,10 +148,10 @@ export default function AdminDashboard() {
     const urgent  = leads.filter(l => l.urgency === "urgent").length;
     const revenue = leads.reduce((s, l) => s + Number(l.price || 0), 0);
     return [
-      { label: "Total Leads",   value: leads.length,                 icon: <Users className="w-6 h-6 text-amber-400" /> },
-      { label: "Booked",        value: booked,                       icon: <CalendarDays className="w-6 h-6 text-amber-400" /> },
-      { label: "Urgent",        value: urgent,                       icon: <AlertTriangle className="w-6 h-6 text-amber-400" /> },
-      { label: "Revenue Est.",  value: `€${revenue.toLocaleString()}`, icon: <CircleDollarSign className="w-6 h-6 text-amber-400" /> },
+      { label: "Gesamtanfragen",   value: leads.length,                 icon: <Users className="w-6 h-6 text-amber-400" /> },
+      { label: "Gebucht",        value: booked,                       icon: <CalendarDays className="w-6 h-6 text-amber-400" /> },
+      { label: "Dringend",        value: urgent,                       icon: <AlertTriangle className="w-6 h-6 text-amber-400" /> },
+      { label: "Geschätzter Umsatz",  value: `€${revenue.toLocaleString()}`, icon: <CircleDollarSign className="w-6 h-6 text-amber-400" /> },
     ];
   }, [leads]);
 
@@ -254,7 +254,7 @@ export default function AdminDashboard() {
             {/* Live indicator */}
             <div className="hidden sm:flex items-center gap-2 bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm">
               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse inline-block" />
-              <span className="text-gray-600 font-medium">n8n running</span>
+              <span className="text-gray-600 font-medium">n8n aktiv</span>
             </div>
 
             <button
@@ -262,7 +262,7 @@ export default function AdminDashboard() {
               className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-5 py-2.5 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95 flex items-center gap-2 text-sm"
             >
               <Download className="w-4 h-4" />
-              Export CSV
+              CSV exportieren
             </button>
           </div>
         </div>
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
           <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
             Admin Dashboard
           </h2>
-          <p className="text-gray-400 mt-3 text-lg">Live bookings · Customer leads · Calendar</p>
+          <p className="text-gray-400 mt-3 text-lg">Live-Buchungen · Kundenanfragen · Kalender</p>
         </div>
       </section>
 
@@ -323,7 +323,7 @@ export default function AdminDashboard() {
             }`}
           >
             <Calendar className="w-4 h-4" />
-            Calendar
+            Kalender
           </button>
         </div>
 
@@ -335,8 +335,8 @@ export default function AdminDashboard() {
             {/* Section heading */}
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Customer Leads</p>
-                <h3 className="text-2xl font-black tracking-tight text-slate-900">All Bookings</h3>
+                <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Kundenanfragen</p>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900">Alle Buchungen</h3>
               </div>
               <button
                 onClick={loadLeads}
@@ -344,7 +344,7 @@ export default function AdminDashboard() {
                 className="flex items-center gap-2 bg-white border border-gray-200 hover:border-amber-300 hover:bg-amber-50 text-gray-600 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-300 disabled:opacity-50"
               >
                 <RefreshCw className={`w-4 h-4 ${leadsLoading ? "animate-spin" : ""}`} />
-                Refresh
+                Aktualisieren
               </button>
             </div>
 
@@ -352,12 +352,12 @@ export default function AdminDashboard() {
             {leadsLoading && (
               <div className="flex items-center gap-3 text-gray-500 text-sm mb-4 bg-white rounded-2xl border border-gray-200 px-5 py-4">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse inline-block" />
-                Loading leads from database…
+                Anfragen werden aus der Datenbank geladen…
               </div>
             )}
             {leadsError && !leadsLoading && (
               <div className="text-red-600 text-sm mb-4 bg-red-50 rounded-2xl border border-red-200 px-5 py-4">
-                ⚠️ {leadsError} — Check your Supabase connection.
+                ⚠️ {leadsError} — Überprüfen Sie Ihre Supabase-Verbindung.
               </div>
             )}
 
@@ -369,7 +369,7 @@ export default function AdminDashboard() {
                 <input
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  placeholder="Search name, email, service…"
+                  placeholder="Name, E-Mail oder Service suchen…"
                   className="w-full bg-slate-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all"
                 />
               </div>
@@ -380,10 +380,10 @@ export default function AdminDashboard() {
                 onChange={e => setFilterStatus(e.target.value)}
                 className="bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all cursor-pointer"
               >
-                <option>All</option>
+                <option>Alle</option>
                 <option>Booked</option>
-                <option>Pending</option>
-                <option>Completed</option>
+                <option>Ausstehend</option>
+                <option>Abgeschlossen</option>
               </select>
 
               {/* Urgency */}
@@ -392,9 +392,9 @@ export default function AdminDashboard() {
                 onChange={e => setFilterUrgency(e.target.value)}
                 className="bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all cursor-pointer"
               >
-                <option>All</option>
+                <option>Alle</option>
                 <option value="normal">Normal</option>
-                <option value="urgent">Urgent</option>
+                <option value="urgent">Dringend</option>
               </select>
 
               {/* Service */}
@@ -403,7 +403,7 @@ export default function AdminDashboard() {
                 onChange={e => setFilterService(e.target.value)}
                 className="bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all cursor-pointer"
               >
-                <option>All</option>
+                <option>Alle</option>
                 {services.map(s => <option key={s}>{s}</option>)}
               </select>
 
@@ -419,13 +419,13 @@ export default function AdminDashboard() {
                     onClick={() => { setFilterStatus("All"); setFilterUrgency("All"); setFilterService("All"); }}
                     className="text-xs text-gray-400 hover:text-slate-900 underline transition-colors font-medium"
                   >
-                    Clear all
+                    Alle zurücksetzen
                   </button>
                 </div>
               )}
 
               <span className="ml-auto text-xs text-gray-400 font-medium whitespace-nowrap">
-                {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                {filtered.length} Ergebnis{filtered.length !== 1 ? "s" : ""}
               </span>
             </div>
 
@@ -435,7 +435,7 @@ export default function AdminDashboard() {
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-gray-100">
-                      {["Customer", "Contact", "Service", "Price", "Urgency", "Appointment", "Photo", "Status"].map(h => (
+                      {["Kunde", "Kontakt", "Leistung", "Preis", "Priorität", "Termin", "Foto", "Status"].map(h => (
                         <th key={h} className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">
                           {h}
                         </th>
@@ -446,7 +446,7 @@ export default function AdminDashboard() {
                     {filtered.length === 0 && (
                       <tr>
                         <td colSpan={8} className="py-20 text-center text-gray-400">
-                          No leads match your filters.
+                          Keine Anfragen entsprechen Ihren Filtern.
                         </td>
                       </tr>
                     )}
@@ -470,7 +470,7 @@ export default function AdminDashboard() {
                               </div>
                               <div>
                                 <div className="font-semibold text-slate-900">{lead.customerName}</div>
-                                <div className="text-xs text-gray-400 mt-0.5">Qty: {lead.quantity}</div>
+                                <div className="text-xs text-gray-400 mt-0.5">Menge: {lead.quantity}</div>
                               </div>
                             </div>
                           </td>
@@ -548,8 +548,8 @@ export default function AdminDashboard() {
           <div>
             {/* Section heading */}
             <div className="mb-6">
-              <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Weekly Overview</p>
-              <h3 className="text-2xl font-black tracking-tight text-slate-900">Appointment Calendar</h3>
+              <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Wochenübersicht</p>
+              <h3 className="text-2xl font-black tracking-tight text-slate-900">Terminkalender</h3>
             </div>
 
             {/* Week nav bar */}
@@ -565,7 +565,7 @@ export default function AdminDashboard() {
                   onClick={() => setWeekBase(new Date())}
                   className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-4 py-2 rounded-xl text-sm transition-all duration-300 active:scale-95"
                 >
-                  Today
+                  Heute
                 </button>
                 <button
                   onClick={() => { const d = new Date(weekBase); d.setDate(d.getDate() + 7); setWeekBase(d); }}
@@ -576,7 +576,7 @@ export default function AdminDashboard() {
                 <button
                   onClick={refreshCalendar}
                   className="w-9 h-9 flex items-center justify-center bg-slate-50 border border-gray-200 rounded-xl hover:border-amber-300 hover:bg-amber-50 transition-all"
-                  title="Refresh"
+                  title="Aktualisieren"
                 >
                   <RefreshCw className="w-4 h-4 text-gray-500" />
                 </button>
@@ -601,17 +601,17 @@ export default function AdminDashboard() {
             {calendarLoading && (
               <div className="flex items-center gap-3 text-gray-500 text-sm mb-4 bg-white rounded-2xl border border-gray-200 px-5 py-4">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse inline-block" />
-                Fetching Google Calendar events…
+                Google-Kalendertermine werden geladen…
               </div>
             )}
             {calendarError && !calendarLoading && (
               <div className="text-red-600 text-sm mb-4 bg-red-50 rounded-2xl border border-red-200 px-5 py-4">
-                ⚠️ {calendarError} — Make sure your backend is running and the n8n workflow is active.
+                ⚠️ {calendarError} — Stellen Sie sicher, dass Ihr Backend läuft und der n8n-Workflow aktiv ist.
               </div>
             )}
             {!calendarLoading && !calendarError && calendarEvents.length === 0 && (
               <div className="text-gray-400 text-sm mb-4 bg-white rounded-2xl border border-gray-200 px-5 py-4">
-                No events found in Google Calendar for this period.
+                Für diesen Zeitraum wurden keine Termine im Google Kalender gefunden.
               </div>
             )}
 

@@ -17,29 +17,29 @@ export default function Home() {
   const services = [
     {
       icon: <Zap className="w-8 h-8 text-amber-400" />,
-      title: "Emergency Electrical Repairs",
+      title: "Elektrische Notfallreparaturen",
       description:
-        "Fast same-day response for outages, short circuits, and urgent electrical problems.",
+        "Schnelle Hilfe am selben Tag bei Stromausfällen, Kurzschlüssen und dringenden Elektroproblemen.",
     },
     {
       icon: <Wrench className="w-8 h-8 text-amber-400" />,
-      title: "Wiring & Installations",
+      title: "Verkabelung & Installationen",
       description:
-        "Professional wiring, lighting installation, sockets, switches, and renovations.",
+        "Professionelle Verkabelung, Lichtinstallationen, Steckdosen, Schalter und Renovierungen.",
     },
     {
       icon: <Building2 className="w-8 h-8 text-amber-400" />,
-      title: "Commercial Services",
+      title: "Gewerbliche Dienstleistungen",
       description:
-        "Reliable electrical maintenance and upgrades for offices, shops, and businesses.",
+        "Zuverlässige Wartung und Modernisierung elektrischer Anlagen für Büros, Geschäfte und Unternehmen.",
     },
   ];
 
   const features = [
-    "Certified & insured electricians",
-    "Same-day appointments available",
-    "Transparent pricing",
-    "Modern AI-powered booking",
+    "Zertifizierte und versicherte Elektriker",
+    "Termine am selben Tag verfügbar",
+    "Transparente Preise",
+    "Moderne KI-gestützte Buchung",
   ];
 
   const testimonials = [
@@ -47,19 +47,19 @@ export default function Home() {
       name: "Markus H.",
       location: "Frankfurt",
       review:
-        "Very professional team. They fixed our power outage within two hours and explained everything clearly.",
+        "Sehr professionelles Team. Unser Stromausfall wurde innerhalb von zwei Stunden behoben und alles wurde klar erklärt.",
     },
     {
       name: "Sarah L.",
       location: "Offenbach",
       review:
-        "Easy booking process and fair pricing. The electrician arrived on time and did excellent work.",
+        "Einfacher Buchungsprozess und faire Preise. Der Elektriker kam pünktlich und hat hervorragende Arbeit geleistet.",
     },
     {
       name: "Daniel R.",
       location: "Darmstadt",
       review:
-        "Clean installation, professional communication, and very reliable service overall.",
+        "Saubere Installation, professionelle Kommunikation und insgesamt sehr zuverlässiger Service.",
     },
   ];
 
@@ -77,7 +77,7 @@ export default function Home() {
               <h1 className="font-black text-xl tracking-tight text-slate-900">
                 ElektroFix
               </h1>
-              <p className="text-sm text-gray-500">Licensed Electricians</p>
+              <p className="text-sm text-gray-500">Zertifizierte Elektriker</p>
             </div>
           </div>
 
@@ -86,25 +86,25 @@ export default function Home() {
               href="#services"
               className="hover:text-slate-900 transition-all duration-300"
             >
-              Services
+              Leistungen
             </a>
             <a
               href="#why-us"
               className="hover:text-slate-900 transition-all duration-300"
             >
-              Why Us
+              Warum wir
             </a>
             <a
               href="#reviews"
               className="hover:text-slate-900 transition-all duration-300"
             >
-              Reviews
+              Bewertungen
             </a>
             <a
               href="#contact"
               className="hover:text-slate-900 transition-all duration-300"
             >
-              Contact
+              Kontakt
             </a>
           </nav>
 
@@ -115,7 +115,7 @@ export default function Home() {
             </div>
 
             <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-5 py-3 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5 active:scale-95">
-              Get Quote
+              Angebot erhalten
             </button>
           </div>
         </div>
@@ -131,28 +131,28 @@ export default function Home() {
             <div>
               <div className="inline-flex items-center gap-2 bg-white/10 border border-white/10 rounded-full px-4 py-2 mb-8 text-sm font-medium">
                 <BadgeCheck className="w-4 h-4 text-amber-400" />
-                Trusted by 500+ homeowners across Germany
+                Vertraut von über 500 Hausbesitzern in ganz Deutschland
               </div>
 
               <h1 className="text-5xl md:text-6xl font-black tracking-tight leading-tight mb-6">
-                Professional Electricians in Frankfurt: Fast, Safe & Reliable
-                Service
+                Professionelle Elektriker in Frankfurt – Schnell, sicher &
+                zuverlässig
               </h1>
 
               <p className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl mb-10">
-                Certified electricians for emergency repairs, installations,
-                wiring, and inspections with same-day appointments available
-                across Frankfurt and nearby areas.
+                Zertifizierte Elektriker für Notfallreparaturen, Installationen,
+                Verkabelungen und Inspektionen – mit Terminen am selben Tag in
+                Frankfurt und Umgebung.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
                 <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-7 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105 hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-2">
-                  Get Instant Quote
+                  Sofortiges Angebot erhalten
                   <ArrowRight className="w-5 h-5" />
                 </button>
 
                 <button className="border border-white/20 hover:border-white text-white px-7 py-4 rounded-xl transition-all duration-300 hover:bg-white hover:text-slate-900 font-semibold">
-                  Learn More
+                  Mehr erfahren
                 </button>
               </div>
 
@@ -160,19 +160,21 @@ export default function Home() {
                 <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl px-4 py-3">
                   <ShieldCheck className="w-5 h-5 text-amber-400" />
                   <span className="text-sm font-medium">
-                    Certified & Insured
+                    Zertifiziert & versichert
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl px-4 py-3">
                   <Clock3 className="w-5 h-5 text-amber-400" />
-                  <span className="text-sm font-medium">Same-Day Service</span>
+                  <span className="text-sm font-medium">
+                    Service am selben Tag
+                  </span>
                 </div>
 
                 <div className="flex items-center gap-2 bg-white/10 border border-white/10 rounded-xl px-4 py-3">
                   <Star className="w-5 h-5 text-amber-400" />
                   <span className="text-sm font-medium">
-                    4.9★ Google Rating
+                    4,9★ Google-Bewertung
                   </span>
                 </div>
               </div>
@@ -180,19 +182,19 @@ export default function Home() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-10">
                 <div>
                   <h3 className="text-3xl font-black text-amber-400">24/7</h3>
-                  <p className="text-gray-400 text-sm mt-1">
-                    Emergency Support
-                  </p>
+                  <p className="text-gray-400 text-sm mt-1">Notfallservice</p>
                 </div>
 
                 <div>
                   <h3 className="text-3xl font-black text-amber-400">2,000+</h3>
-                  <p className="text-gray-400 text-sm mt-1">Completed Jobs</p>
+                  <p className="text-gray-400 text-sm mt-1">
+                    Abgeschlossene Aufträge
+                  </p>
                 </div>
 
                 <div>
                   <h3 className="text-3xl font-black text-amber-400">15+</h3>
-                  <p className="text-gray-400 text-sm mt-1">Years Experience</p>
+                  <p className="text-gray-400 text-sm mt-1">Jahre Erfahrung</p>
                 </div>
               </div>
             </div>
@@ -215,13 +217,15 @@ export default function Home() {
                 </div>
 
                 <p className="text-sm text-gray-700 leading-relaxed mb-4">
-                  “Power outage fixed within 45 minutes. Very professional
-                  electrician and transparent pricing.”
+                  “Stromausfall innerhalb von 45 Minuten behoben. Sehr
+                  professioneller Elektriker und transparente Preise.”
                 </p>
 
                 <div>
                   <p className="font-bold text-sm">Markus H.</p>
-                  <p className="text-xs text-gray-500">Frankfurt, Germany</p>
+                  <p className="text-xs text-gray-500">
+                    Frankfurt, Deutschland
+                  </p>
                 </div>
               </div>
             </div>
@@ -234,24 +238,26 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div className="flex items-center justify-center gap-3">
             <Star className="w-6 h-6 text-amber-400" />
-            <p className="font-semibold text-slate-900">Certified & Insured</p>
-          </div>
-
-          <div className="flex items-center justify-center gap-3">
-            <Star className="w-6 h-6 text-amber-400" />
             <p className="font-semibold text-slate-900">
-              24/7 Emergency Support
+              Zertifiziert & versichert
             </p>
           </div>
 
           <div className="flex items-center justify-center gap-3">
             <Star className="w-6 h-6 text-amber-400" />
-            <p className="font-semibold text-slate-900">Top Rated Service</p>
+            <p className="font-semibold text-slate-900">24/7 Notdienst</p>
           </div>
 
           <div className="flex items-center justify-center gap-3">
             <Star className="w-6 h-6 text-amber-400" />
-            <p className="font-semibold text-slate-900">Transparent Pricing</p>
+            <p className="font-semibold text-slate-900">
+              Top-bewerteter Service
+            </p>
+          </div>
+
+          <div className="flex items-center justify-center gap-3">
+            <Star className="w-6 h-6 text-amber-400" />
+            <p className="font-semibold text-slate-900">Transparente Preise</p>
           </div>
         </div>
       </section>
@@ -261,16 +267,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-4">
-              Our Services
+              Unsere Leistungen
             </p>
 
             <h2 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-6">
-              Professional Electrical Solutions
+              Professionelle Elektrolösungen
             </h2>
 
             <p className="text-lg text-gray-600 leading-relaxed">
-              Reliable electrical services for homes, apartments, offices, and
-              commercial properties.
+              Zuverlässige Elektroservices für Häuser, Wohnungen, Büros und
+              Gewerbeimmobilien.
             </p>
           </div>
 
@@ -294,7 +300,7 @@ export default function Home() {
                   </p>
 
                   <button className="flex items-center gap-2 text-sm font-semibold text-slate-900 group-hover:text-amber-500 transition-colors">
-                    Learn More
+                    Mehr erfahren
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
@@ -318,11 +324,11 @@ export default function Home() {
 
             <div>
               <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-4">
-                Why Choose Us
+                Warum Sie uns wählen sollten
               </p>
 
               <h2 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-8">
-                Modern Electrical Service With Real Reliability
+                Moderner Elektroservice mit echter Zuverlässigkeit
               </h2>
 
               <div className="space-y-5">
@@ -345,20 +351,21 @@ export default function Home() {
       <section className="py-20 md:py-28 bg-slate-900 text-white">
         <div className="max-w-5xl mx-auto px-6 lg:px-8 text-center">
           <p className="text-sm font-semibold uppercase tracking-wide text-amber-400 mb-4">
-            Smart Booking Experience
+            Intelligentes Buchungserlebnis
           </p>
 
           <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
-            Describe Your Electrical Problem & Get an Instant Estimate
+            Beschreiben Sie Ihr Elektroproblem & erhalten Sie sofort eine
+            Kostenschätzung
           </h2>
 
           <p className="text-lg text-gray-300 leading-relaxed max-w-3xl mx-auto mb-10">
-            Our smart booking assistant helps you get pricing, availability, and
-            appointment scheduling in under 2 minutes.
+            Unser smarter Buchungsassistent hilft Ihnen dabei, Preise,
+            Verfügbarkeit und Termine in weniger als 2 Minuten zu erhalten.
           </p>
 
           <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105 hover:shadow-amber-400/30">
-            Get Instant Estimate
+            Sofortige Kostenschätzung erhalten
           </button>
         </div>
       </section>
@@ -368,11 +375,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-4">
-              Customer Reviews
+              Kundenbewertungen
             </p>
 
             <h2 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-6">
-              Trusted By Homeowners Across Germany
+              Vertraut von Hausbesitzern in ganz Deutschland
             </h2>
           </div>
 
@@ -407,7 +414,7 @@ export default function Home() {
                   </div>
 
                   <div className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
-                    Verified
+                    Verifiziert
                   </div>
                 </div>
               </div>
@@ -422,22 +429,23 @@ export default function Home() {
           <div className="bg-slate-900 rounded-[32px] p-10 md:p-16 text-white shadow-2xl border border-white/10 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-72 h-72 bg-amber-400/10 blur-3xl rounded-full"></div>
             <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight mb-6">
-              Fast, Safe & Professional Electrical Service When You Need It Most
+              Schneller, sicherer & professioneller Elektroservice, wenn Sie ihn
+              am meisten brauchen
             </h2>
 
             <p className="text-lg text-gray-300 leading-relaxed mb-10 max-w-2xl mx-auto">
-              From emergency repairs to complete installations, our certified
-              electricians are ready to help homes and businesses across
-              Frankfurt.
+              Von Notfallreparaturen bis hin zu kompletten Installationen –
+              unsere zertifizierten Elektriker helfen Haushalten und Unternehmen
+              in ganz Frankfurt.
             </p>
 
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <button className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-8 py-4 rounded-xl transition-all duration-300 shadow-lg hover:scale-105 hover:-translate-y-1 active:scale-95">
-                Get Instant Quote
+                Sofortiges Angebot erhalten
               </button>
 
               <button className="border border-white/20 hover:border-white px-8 py-4 rounded-xl transition-all duration-300 hover:bg-white hover:text-slate-900 font-semibold">
-                Call Now
+                Jetzt anrufen
               </button>
             </div>
           </div>
@@ -460,13 +468,15 @@ export default function Home() {
                     ElektroFix
                   </h3>
 
-                  <p className="text-sm text-gray-500">Licensed Electricians</p>
+                  <p className="text-sm text-gray-500">
+                    Zertifizierte Elektriker
+                  </p>
                 </div>
               </div>
 
               <p className="text-sm leading-relaxed text-gray-500 max-w-xs">
-                Professional electrical services for homes and businesses across
-                Frankfurt and nearby areas.
+                Professionelle Elektroservices für Haushalte und Unternehmen in
+                Frankfurt und Umgebung.
               </p>
             </div>
 
@@ -480,7 +490,7 @@ export default function Home() {
                     href="#services"
                     className="hover:text-white transition-colors"
                   >
-                    Emergency Repairs
+                    Notfallreparaturen
                   </a>
                 </li>
 
@@ -489,7 +499,7 @@ export default function Home() {
                     href="#services"
                     className="hover:text-white transition-colors"
                   >
-                    Wiring & Installations
+                    Verkabelung & Installationen
                   </a>
                 </li>
 
@@ -498,7 +508,7 @@ export default function Home() {
                     href="#services"
                     className="hover:text-white transition-colors"
                   >
-                    Electrical Inspections
+                    Elektrische Inspektionen
                   </a>
                 </li>
 
@@ -507,7 +517,7 @@ export default function Home() {
                     href="#services"
                     className="hover:text-white transition-colors"
                   >
-                    Commercial Services
+                    Gewerbliche Dienstleistungen
                   </a>
                 </li>
               </ul>
@@ -515,7 +525,7 @@ export default function Home() {
 
             {/* COMPANY */}
             <div>
-              <h4 className="text-white font-bold mb-6">Company</h4>
+              <h4 className="text-white font-bold mb-6">Unternehmen</h4>
 
               <ul className="space-y-3 text-sm">
                 <li>
@@ -523,7 +533,7 @@ export default function Home() {
                     href="#why-us"
                     className="hover:text-white transition-colors"
                   >
-                    Why Choose Us
+                    Warum wir
                   </a>
                 </li>
 
@@ -532,7 +542,7 @@ export default function Home() {
                     href="#reviews"
                     className="hover:text-white transition-colors"
                   >
-                    Customer Reviews
+                    Kundenbewertungen
                   </a>
                 </li>
 
@@ -541,7 +551,7 @@ export default function Home() {
                     href="#contact"
                     className="hover:text-white transition-colors"
                   >
-                    Contact Us
+                    Kontaktieren Sie uns
                   </a>
                 </li>
 
@@ -550,7 +560,7 @@ export default function Home() {
                     href="#contact"
                     className="hover:text-white transition-colors"
                   >
-                    Get Instant Quote
+                    Sofortiges Angebot erhalten
                   </a>
                 </li>
               </ul>
@@ -568,12 +578,12 @@ export default function Home() {
 
                 <div className="flex items-start gap-3">
                   <Clock3 className="w-4 h-4 text-amber-400 mt-0.5" />
-                  <span>24/7 Emergency Support</span>
+                  <span>24/7 Notdienst</span>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <ShieldCheck className="w-4 h-4 text-amber-400 mt-0.5" />
-                  <span>Certified & Insured Electricians</span>
+                  <span>Zertifizierte und versicherte Elektriker</span>
                 </div>
               </div>
             </div>
@@ -582,15 +592,15 @@ export default function Home() {
           {/* BOTTOM BAR */}
           <div className="border-t border-white/10 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
             <p className="text-gray-500">
-              © 2026 ElektroFix. All rights reserved.
+              © 2026 ElektroFix. Alle Rechte vorbehalten.
             </p>
 
             <div className="flex items-center gap-6 text-gray-500">
-              <span>Frankfurt, Germany</span>
+              <span>Frankfurt, Deutschland</span>
 
               <span>•</span>
 
-              <span>Same-Day Service Available</span>
+              <span>Service am selben Tag verfügbar</span>
             </div>
           </div>
         </div>
