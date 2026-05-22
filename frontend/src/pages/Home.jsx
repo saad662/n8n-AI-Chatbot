@@ -1,11 +1,7 @@
 import {
-  Phone,
   ShieldCheck,
   Clock3,
   Star,
-  Zap,
-  Wrench,
-  Building2,
   BadgeCheck,
   ArrowRight,
   CheckCircle2,
@@ -14,57 +10,9 @@ import {
 import ChatWidget from "../components/ChatWidget";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { services, features, testimonials } from "../data/homeData";
 
 export default function Home() {
-  const services = [
-    {
-      icon: <Zap className="w-8 h-8 text-amber-400" />,
-      title: "Elektrische Notfallreparaturen",
-      description:
-        "Schnelle Hilfe am selben Tag bei Stromausfällen, Kurzschlüssen und dringenden Elektroproblemen.",
-    },
-    {
-      icon: <Wrench className="w-8 h-8 text-amber-400" />,
-      title: "Verkabelung & Installationen",
-      description:
-        "Professionelle Verkabelung, Lichtinstallationen, Steckdosen, Schalter und Renovierungen.",
-    },
-    {
-      icon: <Building2 className="w-8 h-8 text-amber-400" />,
-      title: "Gewerbliche Dienstleistungen",
-      description:
-        "Zuverlässige Wartung und Modernisierung elektrischer Anlagen für Büros, Geschäfte und Unternehmen.",
-    },
-  ];
-
-  const features = [
-    "Zertifizierte und versicherte Elektriker",
-    "Termine am selben Tag verfügbar",
-    "Transparente Preise",
-    "Moderne KI-gestützte Buchung",
-  ];
-
-  const testimonials = [
-    {
-      name: "Markus H.",
-      location: "Frankfurt",
-      review:
-        "Sehr professionelles Team. Unser Stromausfall wurde innerhalb von zwei Stunden behoben und alles wurde klar erklärt.",
-    },
-    {
-      name: "Sarah L.",
-      location: "Offenbach",
-      review:
-        "Einfacher Buchungsprozess und faire Preise. Der Elektriker kam pünktlich und hat hervorragende Arbeit geleistet.",
-    },
-    {
-      name: "Daniel R.",
-      location: "Darmstadt",
-      review:
-        "Saubere Installation, professionelle Kommunikation und insgesamt sehr zuverlässiger Service.",
-    },
-  ];
-
   return (
     <div className="bg-slate-50 text-gray-900 font-sans overflow-x-hidden">
       {/* NAVBAR */}
