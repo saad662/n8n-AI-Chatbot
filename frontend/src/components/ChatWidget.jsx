@@ -90,7 +90,7 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState([
     {
       sender: "bot",
-      text: "Hi 👋 Welcome to Lutz Electrical. What is your name?",
+      text: "Hallo 👋 Willkommen bei Lutz Electrical. Wie heißen Sie?",
     },
   ]);
 
@@ -142,14 +142,14 @@ export default function ChatWidget() {
   const handleName = (value) => {
     setCustomerName(value);
     addMessage({ sender: "user", text: value });
-    addMessage({ sender: "bot", text: "What is your phone number?" });
+    addMessage({ sender: "bot", text: "Wie lautet Ihre Telefonnummer?" });
     setStep("phone");
   };
 
   const handlePhone = (value) => {
     setPhone(value);
     addMessage({ sender: "user", text: value });
-    addMessage({ sender: "bot", text: "What is your email?" });
+    addMessage({ sender: "bot", text: "Wie lautet Ihre E-Mail-Adresse?" });
     setStep("email");
   };
 
@@ -158,7 +158,7 @@ export default function ChatWidget() {
     addMessage({ sender: "user", text: value });
     addMessage({
       sender: "bot",
-      text: "What service do you need?",
+      text: "Welche Dienstleistung benötigen Sie?",
     });
     setStep("service");
   };
@@ -167,7 +167,7 @@ export default function ChatWidget() {
     if (!isValidEmail(value)) {
       addMessage({
         sender: "bot",
-        text: "Please enter a valid email address.",
+        text: "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
       });
       return;
     }
@@ -175,7 +175,7 @@ export default function ChatWidget() {
     addMessage({ sender: "user", text: value });
     addMessage({
       sender: "bot",
-      text: "What is your street address?",
+      text: "Wie lautet Ihre Straßenadresse?",
     });
     setStep("address");
   };
@@ -186,10 +186,10 @@ export default function ChatWidget() {
 
     if (s === "Inspection" || s === "Emergency repair") {
       setStep("urgency");
-      addMessage({ sender: "bot", text: "Is this urgent?" });
+      addMessage({ sender: "bot", text: "Ist das dringend?" });
     } else {
       setStep("quantity");
-      addMessage({ sender: "bot", text: "How many units/meters?" });
+      addMessage({ sender: "bot", text: "Wie viele Einheiten/Meter?" });
     }
   };
 
@@ -233,7 +233,7 @@ export default function ChatWidget() {
 
     addMessage({
       sender: "bot",
-      text: "📷 Would you like to send a photo? (e.g. your electrical board). This is completely optional.",
+      text: "📷 Möchten Sie ein Foto senden? (z. B. von Ihrem Sicherungskasten). Dies ist völlig optional.",
     });
     setStep("photo");
   };
@@ -246,14 +246,14 @@ export default function ChatWidget() {
     if (!file.type.startsWith("image/")) {
       addMessage({
         sender: "bot",
-        text: "Please select an image file (JPG, PNG, etc.).",
+        text: "Bitte wählen Sie eine Bilddatei aus (JPG, PNG usw.).",
       });
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
       addMessage({
         sender: "bot",
-        text: "Image is too large. Please choose one under 10MB.",
+        text: "Das Bild ist zu groß. Bitte wählen Sie eines unter 10 MB.",
       });
       return;
     }
@@ -285,19 +285,19 @@ export default function ChatWidget() {
       setPhotoUrl(url);
       addMessage({
         sender: "bot",
-        text: "✅ Photo uploaded! We'll use it to better prepare for your visit.",
+        text: "✅ Foto hochgeladen! Wir verwenden es, um uns besser auf Ihren Termin vorzubereiten.",
       });
     } catch {
       addMessage({
         sender: "bot",
-        text: "⚠️ Photo upload failed. You can still book without it.",
+        text: "⚠️ Das Hochladen des Fotos ist fehlgeschlagen. Sie können trotzdem ohne Foto buchen.",
       });
     } finally {
       setPhotoUploading(false);
       setStep("final");
       addMessage({
         sender: "bot",
-        text: "Would you like to book an appointment?",
+        text: "Möchten Sie einen Termin buchen?",
       });
     }
   };
@@ -307,7 +307,7 @@ export default function ChatWidget() {
     setStep("final");
     addMessage({
       sender: "bot",
-      text: "No problem! Would you like to book an appointment?",
+      text: "Kein Problem! Möchten Sie einen Termin buchen?",
     });
   };
 
@@ -327,7 +327,7 @@ export default function ChatWidget() {
     const data = await res.json();
     setMessages((prev) => [
       ...prev,
-      { sender: "bot", text: "Please choose a slot", slots: data.slots || [] },
+      { sender: "bot", text: "Bitte wählen Sie einen Termin aus", slots: data.slots || [] },
     ]);
     setSelectedDay(null);
     setStep("booked");
@@ -406,7 +406,7 @@ export default function ChatWidget() {
       }
       addMessage({
         sender: "bot",
-        text: `✅ Appointment Confirmed 📅 ${formattedSlot} 👤 ${customerName} 📍 ${address} 🔧 ${service} A confirmation email will be sent shortly.`,
+        text: `✅ Termin bestätigt 📅 ${formattedSlot} 👤 ${customerName} 📍 ${address} 🔧 ${service} Eine Bestätigungs-E-Mail wird in Kürze gesendet.`,
       });
 
       setStep("final_done");
@@ -454,7 +454,7 @@ export default function ChatWidget() {
         <div className="fixed bottom-0 left-0 right-0 h-[75%] sm:inset-auto sm:bottom-20 sm:right-6 sm:left-auto z-[9999] w-full sm:w-[320px] sm:h-[420px] bg-white shadow-2xl rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden border-0 sm:border sm:border-gray-200 [animation:slideUp_0.3s_ease-out] sm:[animation:none]">
           {/* HEADER */}
           <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-4 py-2.5 font-semibold flex items-center justify-between">
-            <span>⚡ Lutz Electrical</span>
+            <span>⚡ Lutz Elektro</span>
             <button
               onClick={() => setOpen(false)}
               className="text-black font-bold"
@@ -503,7 +503,7 @@ export default function ChatWidget() {
                           {!selectedDay && (
                             <>
                               <p className="text-xs text-gray-500 font-medium mb-1">
-                                Choose a day:
+                                Tag auswählen:
                               </p>
                               <div className="flex flex-wrap gap-1.5">
                                 {days.map((day, idx) => (
@@ -526,10 +526,10 @@ export default function ChatWidget() {
                                   onClick={() => setSelectedDay(null)}
                                   className="text-xs text-gray-400 hover:text-gray-600 underline"
                                 >
-                                  ← Back
+                                  ← Zurück
                                 </button>
                                 <p className="text-xs text-gray-500 font-medium">
-                                  {selectedDay} — choose a time:
+                                  {selectedDay} — Uhrzeit auswählen:
                                 </p>
                               </div>
                               <div className="flex flex-wrap gap-1.5">
@@ -577,13 +577,13 @@ export default function ChatWidget() {
                   onKeyDown={handleKeyDown}
                   placeholder={
                     step === "name"
-                      ? "Enter your name"
+                      ? "Geben Sie Ihren Namen ein"
                       : step === "phone"
-                        ? "Enter phone number"
+                        ? "Telefonnummer eingeben"
                         : step === "email"
-                          ? "Enter your email"
+                          ? "E-Mail-Adresse eingeben"
                           : step === "address"
-                            ? "Enter your street address"
+                            ? "Straßenadresse eingeben"
                             : ""
                   }
                   className="flex-1 border rounded-xl px-3 py-2 text-sm outline-none"
@@ -637,7 +637,7 @@ export default function ChatWidget() {
                   onClick={() => handleUrgency("urgent")}
                   className="bg-red-500 text-white px-3 py-1.5 rounded-full text-xs hover:bg-red-600 transition shadow-sm"
                 >
-                  Urgent
+                  Dringend
                 </button>
               </div>
             )}
@@ -655,7 +655,7 @@ export default function ChatWidget() {
                     style={{ animationDelay: "0.3s" }}
                   />
                 </div>
-                <span>Calculating price...</span>
+                <span>Preis wird berechnet...</span>
               </div>
             )}
 
@@ -703,7 +703,7 @@ export default function ChatWidget() {
                       onClick={handlePhotoSubmit}
                       className="bg-yellow-400 hover:bg-yellow-500 px-3 py-2 rounded-xl text-xs font-semibold transition"
                     >
-                      Send
+                      Senden
                     </button>
                   )}
 
@@ -727,7 +727,7 @@ export default function ChatWidget() {
                     onClick={handleSkipPhoto}
                     className="text-xs text-gray-400 hover:text-gray-600 underline text-center"
                   >
-                    Skip, no photo needed
+                    Überspringen, kein Foto erforderlich
                   </button>
                 )}
               </div>
@@ -739,7 +739,7 @@ export default function ChatWidget() {
                   onClick={handleBooking}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-black py-2 rounded-full text-sm font-semibold shadow-md transition duration-200"
                 >
-                  Book Appointment
+                  Termin buchen
                 </button>
                 <button>
                   <a
@@ -748,7 +748,7 @@ export default function ChatWidget() {
                     rel="noopener noreferrer"
                     className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-md transition duration-200"
                   >
-                    Talk on WhatsApp
+                    Über WhatsApp sprechen
                   </a>
                 </button>
               </div>
