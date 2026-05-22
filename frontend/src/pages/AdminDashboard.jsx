@@ -20,16 +20,20 @@ import {
 
 // ─── SUPABASE CONFIG ──────────────────────────────────────────────────
 const SUPABASE_URL = "https://cthzexnthkybvoebwyth.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII";
 
 // ── Fetch all leads from Supabase ─────────────────────────────────────
 async function fetchLeadsFromSupabase() {
-  const res = await fetch(`${SUPABASE_URL}/rest/v1/leads?order=created_at.desc`, {
-    headers: {
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+  const res = await fetch(
+    `${SUPABASE_URL}/rest/v1/leads?order=created_at.desc`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
     },
-  });
+  );
   if (!res.ok) {
     const errText = await res.text();
     console.error("Supabase fetch error:", res.status, errText);
@@ -38,19 +42,20 @@ async function fetchLeadsFromSupabase() {
   const rows = await res.json();
   console.log("Supabase leads raw response:", rows);
   // Map snake_case DB columns → camelCase used throughout the dashboard
-  return rows.map(r => ({
-    id:           String(r.id),
+  return rows.map((r) => ({
+    id: String(r.id),
     customerName: r.customer_name,
-    phone:        r.phone,
-    email:        r.email,
-    service:      r.service,
-    quantity:     r.quantity,
-    urgency:      r.urgency,
-    price:        r.price,
-    slot:         r.slot,
-    status:       r.status,
-    photoUrl:     r.photo_url,
-    createdAt:    r.created_at,
+    phone: r.phone,
+    email: r.email,
+    address: r.address,
+    service: r.service,
+    quantity: r.quantity,
+    urgency: r.urgency,
+    price: r.price,
+    slot: r.slot,
+    status: r.status,
+    photoUrl: r.photo_url,
+    createdAt: r.created_at,
   }));
 }
 
@@ -60,9 +65,9 @@ async function updateLeadStatusInSupabase(id, newStatus) {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Prefer": "return=minimal",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Prefer: "return=minimal",
     },
     body: JSON.stringify({ status: newStatus }),
   });
@@ -72,10 +77,19 @@ async function updateLeadStatusInSupabase(id, newStatus) {
 // ─── HELPERS ──────────────────────────────────────────────────────────
 function fmt(slot) {
   if (!slot) return "—";
-  return new Date(slot).toLocaleString("en-DE", { weekday: "short", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(slot).toLocaleString("en-DE", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 function fmtTime(slot) {
-  return new Date(slot).toLocaleTimeString("en-DE", { hour: "2-digit", minute: "2-digit" });
+  return new Date(slot).toLocaleTimeString("en-DE", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 function getWeekDays(baseDate) {
   const start = new Date(baseDate);
@@ -89,122 +103,186 @@ function getWeekDays(baseDate) {
 const HOURS = Array.from({ length: 10 }, (_, i) => i + 8);
 
 const STATUS_CONFIG = {
-  Booked:    { label: "Booked",    cls: "bg-blue-100 text-blue-700" },
+  Booked: { label: "Booked", cls: "bg-blue-100 text-blue-700" },
   Completed: { label: "Completed", cls: "bg-green-100 text-green-700" },
-  Pending:   { label: "Pending",   cls: "bg-amber-100 text-amber-700" },
+  Pending: { label: "Pending", cls: "bg-amber-100 text-amber-700" },
 };
 const URGENCY_CONFIG = {
-  urgent: { cls: "bg-red-100 text-red-600",        label: "🚨 Urgent" },
-  normal: { cls: "bg-gray-100 text-gray-600",       label: "Normal" },
+  urgent: { cls: "bg-red-100 text-red-600", label: "🚨 Urgent" },
+  normal: { cls: "bg-gray-100 text-gray-600", label: "Normal" },
 };
 const SERVICE_COLOR = {
   "Socket installation": "#f59e0b",
-  "Light installation":  "#3b82f6",
-  "Wiring":              "#8b5cf6",
-  "Inspection":          "#10b981",
-  "Emergency repair":    "#ef4444",
+  "Light installation": "#3b82f6",
+  Wiring: "#8b5cf6",
+  Inspection: "#10b981",
+  "Emergency repair": "#ef4444",
 };
 
 // ─── MAIN COMPONENT ───────────────────────────────────────────────────
 export default function AdminDashboard() {
-  const [leads, setLeads]               = useState([]);
-  const [activeTab, setActiveTab]       = useState("leads");
-  const [search, setSearch]             = useState("");
+  const [leads, setLeads] = useState([]);
+  const [activeTab, setActiveTab] = useState("leads");
+  const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
   const [filterUrgency, setFilterUrgency] = useState("All");
   const [filterService, setFilterService] = useState("All");
-  const [lightboxImg, setLightboxImg]   = useState(null);
-  const [weekBase, setWeekBase]         = useState(new Date());
+  const [lightboxImg, setLightboxImg] = useState(null);
+  const [weekBase, setWeekBase] = useState(new Date());
 
-  const [leadsLoading, setLeadsLoading]       = useState(false);
-  const [leadsError, setLeadsError]           = useState(null);
+  const [leadsLoading, setLeadsLoading] = useState(false);
+  const [leadsError, setLeadsError] = useState(null);
 
-  const [calendarEvents, setCalendarEvents]   = useState([]);
+  const [calendarEvents, setCalendarEvents] = useState([]);
   const [calendarLoading, setCalendarLoading] = useState(false);
-  const [calendarError, setCalendarError]     = useState(null);
+  const [calendarError, setCalendarError] = useState(null);
 
   function loadLeads() {
     setLeadsLoading(true);
     setLeadsError(null);
     fetchLeadsFromSupabase()
-      .then(rows => { setLeads(rows); setLeadsLoading(false); })
-      .catch(err  => { setLeadsError(err.message); setLeadsLoading(false); });
+      .then((rows) => {
+        setLeads(rows);
+        setLeadsLoading(false);
+      })
+      .catch((err) => {
+        setLeadsError(err.message);
+        setLeadsLoading(false);
+      });
   }
 
-  useEffect(() => { loadLeads(); }, []);
+  useEffect(() => {
+    loadLeads();
+  }, []);
 
   useEffect(() => {
     if (activeTab !== "calendar") return;
     setCalendarLoading(true);
     setCalendarError(null);
-    fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/calendar-events")
-      .then(r => r.json())
-      .then(data => { setCalendarEvents(data.events || []); setCalendarLoading(false); })
-      .catch(() => { setCalendarError("Could not load Google Calendar events."); setCalendarLoading(false); });
+    fetch(
+      "https://cthzexnthkybvoebwyth.supabase.co/functions/v1/calendar-events",
+    )
+      .then((r) => r.json())
+      .then((data) => {
+        setCalendarEvents(data.events || []);
+        setCalendarLoading(false);
+      })
+      .catch(() => {
+        setCalendarError("Could not load Google Calendar events.");
+        setCalendarLoading(false);
+      });
   }, [activeTab]);
 
   const stats = useMemo(() => {
-    const booked  = leads.filter(l => l.status === "Booked").length;
-    const urgent  = leads.filter(l => l.urgency === "urgent").length;
+    const booked = leads.filter((l) => l.status === "Booked").length;
+    const urgent = leads.filter((l) => l.urgency === "urgent").length;
     const revenue = leads.reduce((s, l) => s + Number(l.price || 0), 0);
     return [
-      { label: "Gesamtanfragen",   value: leads.length,                 icon: <Users className="w-6 h-6 text-amber-400" /> },
-      { label: "Gebucht",        value: booked,                       icon: <CalendarDays className="w-6 h-6 text-amber-400" /> },
-      { label: "Dringend",        value: urgent,                       icon: <AlertTriangle className="w-6 h-6 text-amber-400" /> },
-      { label: "Geschätzter Umsatz",  value: `€${revenue.toLocaleString()}`, icon: <CircleDollarSign className="w-6 h-6 text-amber-400" /> },
+      {
+        label: "Gesamtanfragen",
+        value: leads.length,
+        icon: <Users className="w-6 h-6 text-amber-400" />,
+      },
+      {
+        label: "Gebucht",
+        value: booked,
+        icon: <CalendarDays className="w-6 h-6 text-amber-400" />,
+      },
+      {
+        label: "Dringend",
+        value: urgent,
+        icon: <AlertTriangle className="w-6 h-6 text-amber-400" />,
+      },
+      {
+        label: "Geschätzter Umsatz",
+        value: `€${revenue.toLocaleString()}`,
+        icon: <CircleDollarSign className="w-6 h-6 text-amber-400" />,
+      },
     ];
   }, [leads]);
 
   const filtered = useMemo(() => {
-    return leads.filter(l => {
+    return leads.filter((l) => {
       const q = search.toLowerCase();
-      const matchSearch  = !q || [l.customerName, l.email, l.service, l.phone].some(v => v?.toLowerCase().includes(q));
-      const matchStatus  = filterStatus  === "All" || l.status  === filterStatus;
-      const matchUrgency = filterUrgency === "All" || l.urgency === filterUrgency;
-      const matchService = filterService === "All" || l.service === filterService;
+      const matchSearch =
+        !q ||
+        [l.customerName, l.email, l.service, l.phone, l.address].some((v) =>
+          v?.toLowerCase().includes(q),
+        );
+      const matchStatus = filterStatus === "All" || l.status === filterStatus;
+      const matchUrgency =
+        filterUrgency === "All" || l.urgency === filterUrgency;
+      const matchService =
+        filterService === "All" || l.service === filterService;
       return matchSearch && matchStatus && matchUrgency && matchService;
     });
   }, [leads, search, filterStatus, filterUrgency, filterService]);
 
-  const services = [...new Set(leads.map(l => l.service))];
+  const services = [...new Set(leads.map((l) => l.service))];
   const weekDays = getWeekDays(weekBase);
-  const activeFilters = [filterStatus !== "All" && filterStatus, filterUrgency !== "All" && filterUrgency, filterService !== "All" && filterService].filter(Boolean);
+  const activeFilters = [
+    filterStatus !== "All" && filterStatus,
+    filterUrgency !== "All" && filterUrgency,
+    filterService !== "All" && filterService,
+  ].filter(Boolean);
 
   function getSlotForCell(day, hour) {
-    return calendarEvents.filter(e => {
+    return calendarEvents.filter((e) => {
       if (!e.start) return false;
       const d = new Date(e.start);
-      return d.getDate() === day.getDate() && d.getMonth() === day.getMonth() && d.getFullYear() === day.getFullYear() && d.getHours() === hour;
+      return (
+        d.getDate() === day.getDate() &&
+        d.getMonth() === day.getMonth() &&
+        d.getFullYear() === day.getFullYear() &&
+        d.getHours() === hour
+      );
     });
   }
 
   function parseEventMeta(event) {
     const desc = event.description || "";
-    const get  = key => { const m = desc.match(new RegExp(key + ":\\s*(.+)")); return m ? m[1].trim() : null; };
+    const get = (key) => {
+      const m = desc.match(new RegExp(key + ":\\s*(.+)"));
+      return m ? m[1].trim() : null;
+    };
     const customerName = event.title || "Appointment";
     const service = get("Service") || "Electrical Service";
     const urgency = (get("Urgency") || "normal").toLowerCase();
-    const phone   = get("Phone") || "";
+    const phone = get("Phone") || "";
     // Match against local leads to pull real price & status
-    const matched = leads.find(l =>
-      l.customerName?.toLowerCase() === customerName.toLowerCase() ||
-      (l.slot && event.start && new Date(l.slot).toISOString().slice(0,16) === new Date(event.start).toISOString().slice(0,16))
+    const matched = leads.find(
+      (l) =>
+        l.customerName?.toLowerCase() === customerName.toLowerCase() ||
+        (l.slot &&
+          event.start &&
+          new Date(l.slot).toISOString().slice(0, 16) ===
+            new Date(event.start).toISOString().slice(0, 16)),
     );
-    const price  = matched ? matched.price  : null;
+    const price = matched ? matched.price : null;
     const status = matched ? matched.status : null;
     return { customerName, service, urgency, phone, price, status };
   }
 
   function updateStatus(id, newStatus) {
     updateLeadStatusInSupabase(id, newStatus)
-      .then(() => setLeads(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l)))
-      .catch(err => console.error("Status update failed:", err));
+      .then(() =>
+        setLeads((prev) =>
+          prev.map((l) => (l.id === id ? { ...l, status: newStatus } : l)),
+        ),
+      )
+      .catch((err) => console.error("Status update failed:", err));
   }
 
   function exportCSV() {
-    const csv  = ["Name,Phone,Email,Service,Price,Urgency,Slot,Status", ...leads.map(l => `${l.customerName},${l.phone},${l.email},${l.service},${l.price},${l.urgency},${l.slot},${l.status}`)].join("\n");
-    const a    = document.createElement("a");
-    a.href     = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+    const csv = [
+      "Name,Phone,Email,Service,Price,Urgency,Slot,Status",
+      ...leads.map(
+        (l) =>
+          `${l.customerName},${l.phone},${l.email},${l.service},${l.price},${l.urgency},${l.slot},${l.status}`,
+      ),
+    ].join("\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
     a.download = "lutz_leads.csv";
     a.click();
   }
@@ -212,22 +290,33 @@ export default function AdminDashboard() {
   function refreshCalendar() {
     setCalendarLoading(true);
     setCalendarError(null);
-    fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/calendar-events")
-      .then(r => r.json())
-      .then(d => { setCalendarEvents(d.events || []); setCalendarLoading(false); })
-      .catch(() => { setCalendarError("Could not load events."); setCalendarLoading(false); });
+    fetch(
+      "https://cthzexnthkybvoebwyth.supabase.co/functions/v1/calendar-events",
+    )
+      .then((r) => r.json())
+      .then((d) => {
+        setCalendarEvents(d.events || []);
+        setCalendarLoading(false);
+      })
+      .catch(() => {
+        setCalendarError("Could not load events.");
+        setCalendarLoading(false);
+      });
   }
 
   return (
     <div className="bg-slate-50 text-gray-900 font-sans min-h-screen overflow-x-hidden">
-
       {/* ── LIGHTBOX ── */}
       {lightboxImg && (
         <div
           onClick={() => setLightboxImg(null)}
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center cursor-zoom-out"
         >
-          <img src={lightboxImg} alt="attachment" className="max-w-[90vw] max-h-[85vh] rounded-3xl shadow-2xl" />
+          <img
+            src={lightboxImg}
+            alt="attachment"
+            className="max-w-[90vw] max-h-[85vh] rounded-3xl shadow-2xl"
+          />
           <button
             onClick={() => setLightboxImg(null)}
             className="absolute top-6 right-8 text-white/70 hover:text-white text-3xl bg-white/10 rounded-full w-10 h-10 flex items-center justify-center transition-colors"
@@ -245,7 +334,9 @@ export default function AdminDashboard() {
               <Zap className="w-6 h-6 text-slate-900" />
             </div>
             <div>
-              <h1 className="font-black text-xl tracking-tight text-slate-900">ElektroFix</h1>
+              <h1 className="font-black text-xl tracking-tight text-slate-900">
+                ElektroFix
+              </h1>
               <p className="text-sm text-gray-500">Admin Dashboard</p>
             </div>
           </div>
@@ -272,11 +363,15 @@ export default function AdminDashboard() {
       <section className="bg-slate-900 text-white py-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_#fbbf24,_transparent_35%)]" />
         <div className="max-w-7xl mx-auto px-6 lg:px-8 relative z-10">
-          <p className="text-sm font-semibold uppercase tracking-wide text-amber-400 mb-2">Lutz Electrical</p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-amber-400 mb-2">
+            Lutz Electrical
+          </p>
           <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
             Admin Dashboard
           </h2>
-          <p className="text-gray-400 mt-3 text-lg">Live-Buchungen · Kundenanfragen · Kalender</p>
+          <p className="text-gray-400 mt-3 text-lg">
+            Live-Buchungen · Kundenanfragen · Kalender
+          </p>
         </div>
       </section>
 
@@ -290,8 +385,12 @@ export default function AdminDashboard() {
                 className="group bg-white rounded-3xl p-6 border border-gray-200 hover:border-amber-200 hover:-translate-y-1 hover:shadow-xl transition-all duration-300"
               >
                 <div className="mb-4">{s.icon}</div>
-                <div className="text-3xl font-black tracking-tight text-slate-900">{s.value}</div>
-                <div className="text-sm text-gray-500 mt-1 font-medium">{s.label}</div>
+                <div className="text-3xl font-black tracking-tight text-slate-900">
+                  {s.value}
+                </div>
+                <div className="text-sm text-gray-500 mt-1 font-medium">
+                  {s.label}
+                </div>
               </div>
             ))}
           </div>
@@ -300,7 +399,6 @@ export default function AdminDashboard() {
 
       {/* ── MAIN CONTENT ── */}
       <main className="max-w-7xl mx-auto px-6 lg:px-8 py-10">
-
         {/* ── TABS ── */}
         <div className="flex gap-2 mb-8">
           <button
@@ -335,15 +433,21 @@ export default function AdminDashboard() {
             {/* Section heading */}
             <div className="mb-6 flex items-center justify-between gap-4">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Kundenanfragen</p>
-                <h3 className="text-2xl font-black tracking-tight text-slate-900">Alle Buchungen</h3>
+                <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">
+                  Kundenanfragen
+                </p>
+                <h3 className="text-2xl font-black tracking-tight text-slate-900">
+                  Alle Buchungen
+                </h3>
               </div>
               <button
                 onClick={loadLeads}
                 disabled={leadsLoading}
                 className="flex items-center gap-2 bg-white border border-gray-200 hover:border-amber-300 hover:bg-amber-50 text-gray-600 font-semibold px-4 py-2.5 rounded-xl text-sm transition-all duration-300 disabled:opacity-50"
               >
-                <RefreshCw className={`w-4 h-4 ${leadsLoading ? "animate-spin" : ""}`} />
+                <RefreshCw
+                  className={`w-4 h-4 ${leadsLoading ? "animate-spin" : ""}`}
+                />
                 Aktualisieren
               </button>
             </div>
@@ -368,7 +472,7 @@ export default function AdminDashboard() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <input
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  onChange={(e) => setSearch(e.target.value)}
                   placeholder="Name, E-Mail oder Service suchen…"
                   className="w-full bg-slate-50 border border-gray-200 rounded-xl pl-10 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all"
                 />
@@ -377,7 +481,7 @@ export default function AdminDashboard() {
               {/* Status */}
               <select
                 value={filterStatus}
-                onChange={e => setFilterStatus(e.target.value)}
+                onChange={(e) => setFilterStatus(e.target.value)}
                 className="bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all cursor-pointer"
               >
                 <option>Alle</option>
@@ -389,7 +493,7 @@ export default function AdminDashboard() {
               {/* Urgency */}
               <select
                 value={filterUrgency}
-                onChange={e => setFilterUrgency(e.target.value)}
+                onChange={(e) => setFilterUrgency(e.target.value)}
                 className="bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all cursor-pointer"
               >
                 <option>Alle</option>
@@ -400,23 +504,32 @@ export default function AdminDashboard() {
               {/* Service */}
               <select
                 value={filterService}
-                onChange={e => setFilterService(e.target.value)}
+                onChange={(e) => setFilterService(e.target.value)}
                 className="bg-slate-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm text-gray-700 focus:outline-none focus:border-amber-300 focus:ring-2 focus:ring-amber-100 transition-all cursor-pointer"
               >
                 <option>Alle</option>
-                {services.map(s => <option key={s}>{s}</option>)}
+                {services.map((s) => (
+                  <option key={s}>{s}</option>
+                ))}
               </select>
 
               {/* Active chips */}
               {activeFilters.length > 0 && (
                 <div className="flex gap-2 items-center flex-wrap">
                   {activeFilters.map((f, i) => (
-                    <span key={i} className="bg-amber-50 text-amber-600 text-xs font-bold px-3 py-1 rounded-full border border-amber-200">
+                    <span
+                      key={i}
+                      className="bg-amber-50 text-amber-600 text-xs font-bold px-3 py-1 rounded-full border border-amber-200"
+                    >
                       {f}
                     </span>
                   ))}
                   <button
-                    onClick={() => { setFilterStatus("All"); setFilterUrgency("All"); setFilterService("All"); }}
+                    onClick={() => {
+                      setFilterStatus("All");
+                      setFilterUrgency("All");
+                      setFilterService("All");
+                    }}
                     className="text-xs text-gray-400 hover:text-slate-900 underline transition-colors font-medium"
                   >
                     Alle zurücksetzen
@@ -435,8 +548,20 @@ export default function AdminDashboard() {
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-gray-100">
-                      {["Kunde", "Kontakt", "Leistung", "Preis", "Priorität", "Termin", "Foto", "Status"].map(h => (
-                        <th key={h} className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap">
+                      {[
+                        "Kunde",
+                        "Kontakt",
+                        "Leistung",
+                        "Preis",
+                        "Priorität",
+                        "Termin",
+                        "Foto",
+                        "Status",
+                      ].map((h) => (
+                        <th
+                          key={h}
+                          className="px-6 py-4 text-left text-xs font-bold text-gray-400 uppercase tracking-widest whitespace-nowrap"
+                        >
                           {h}
                         </th>
                       ))}
@@ -445,15 +570,22 @@ export default function AdminDashboard() {
                   <tbody>
                     {filtered.length === 0 && (
                       <tr>
-                        <td colSpan={8} className="py-20 text-center text-gray-400">
+                        <td
+                          colSpan={8}
+                          className="py-20 text-center text-gray-400"
+                        >
                           Keine Anfragen entsprechen Ihren Filtern.
                         </td>
                       </tr>
                     )}
                     {filtered.map((lead, i) => {
                       const sColor = SERVICE_COLOR[lead.service] || "#888";
-                      const st     = STATUS_CONFIG[lead.status] || { label: lead.status, cls: "bg-gray-100 text-gray-600" };
-                      const urg    = URGENCY_CONFIG[lead.urgency] || URGENCY_CONFIG.normal;
+                      const st = STATUS_CONFIG[lead.status] || {
+                        label: lead.status,
+                        cls: "bg-gray-100 text-gray-600",
+                      };
+                      const urg =
+                        URGENCY_CONFIG[lead.urgency] || URGENCY_CONFIG.normal;
                       return (
                         <tr
                           key={lead.id}
@@ -464,13 +596,21 @@ export default function AdminDashboard() {
                             <div className="flex items-center gap-3">
                               <div
                                 className="w-9 h-9 rounded-2xl flex items-center justify-center text-sm font-bold flex-shrink-0"
-                                style={{ background: sColor + "18", color: sColor, border: `1.5px solid ${sColor}33` }}
+                                style={{
+                                  background: sColor + "18",
+                                  color: sColor,
+                                  border: `1.5px solid ${sColor}33`,
+                                }}
                               >
                                 {lead.customerName?.[0]?.toUpperCase()}
                               </div>
                               <div>
-                                <div className="font-semibold text-slate-900">{lead.customerName}</div>
-                                <div className="text-xs text-gray-400 mt-0.5">Menge: {lead.quantity}</div>
+                                <div className="font-semibold text-slate-900">
+                                  {lead.customerName}
+                                </div>
+                                <div className="text-xs text-gray-400 mt-0.5">
+                                  Menge: {lead.quantity}
+                                </div>
                               </div>
                             </div>
                           </td>
@@ -478,52 +618,69 @@ export default function AdminDashboard() {
                           {/* Contact */}
                           <td className="px-6 py-4">
                             <div className="text-gray-700">{lead.phone}</div>
-                            <div className="text-xs text-gray-400 mt-0.5">{lead.email}</div>
+
+                            <div className="text-xs text-gray-400 mt-0.5">
+                              {lead.email}
+                            </div>
+
+                            <div className="text-xs text-gray-500 mt-1 max-w-[220px] break-words">
+                              📍 {lead.address || "No address"}
+                            </div>
                           </td>
 
                           {/* Service */}
                           <td className="px-6 py-4">
                             <span
                               className="text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap"
-                              style={{ background: sColor + "18", color: sColor }}
+                              style={{
+                                background: sColor + "18",
+                                color: sColor,
+                              }}
                             >
                               {lead.service}
                             </span>
                           </td>
 
                           {/* Price */}
-                          <td className="px-6 py-4 font-bold text-slate-900">€{lead.price}</td>
+                          <td className="px-6 py-4 font-bold text-slate-900">
+                            €{lead.price}
+                          </td>
 
                           {/* Urgency */}
                           <td className="px-6 py-4">
-                            <span className={`text-xs font-bold px-3 py-1 rounded-full ${urg.cls}`}>
+                            <span
+                              className={`text-xs font-bold px-3 py-1 rounded-full ${urg.cls}`}
+                            >
                               {urg.label}
                             </span>
                           </td>
 
                           {/* Slot */}
-                          <td className="px-6 py-4 text-gray-600 whitespace-nowrap text-xs">{fmt(lead.slot)}</td>
+                          <td className="px-6 py-4 text-gray-600 whitespace-nowrap text-xs">
+                            {fmt(lead.slot)}
+                          </td>
 
                           {/* Photo */}
                           <td className="px-6 py-4">
-                            {lead.photoUrl
-                              ? (
-                                <img
-                                  src={lead.photoUrl}
-                                  alt="attachment"
-                                  onClick={() => setLightboxImg(lead.photoUrl)}
-                                  className="w-11 h-11 object-cover rounded-xl cursor-zoom-in border-2 border-gray-200 hover:border-amber-300 hover:scale-110 transition-all duration-200"
-                                />
-                              )
-                              : <span className="text-gray-300 text-xs">—</span>
-                            }
+                            {lead.photoUrl ? (
+                              <img
+                                src={lead.photoUrl}
+                                alt="attachment"
+                                onClick={() => setLightboxImg(lead.photoUrl)}
+                                className="w-11 h-11 object-cover rounded-xl cursor-zoom-in border-2 border-gray-200 hover:border-amber-300 hover:scale-110 transition-all duration-200"
+                              />
+                            ) : (
+                              <span className="text-gray-300 text-xs">—</span>
+                            )}
                           </td>
 
                           {/* Status */}
                           <td className="px-6 py-4">
                             <select
                               value={lead.status}
-                              onChange={e => updateStatus(lead.id, e.target.value)}
+                              onChange={(e) =>
+                                updateStatus(lead.id, e.target.value)
+                              }
                               className={`text-xs font-bold px-3 py-1.5 rounded-full border-0 cursor-pointer focus:outline-none focus:ring-2 focus:ring-amber-200 transition-all ${st.cls}`}
                             >
                               <option value="Pending">Pending</option>
@@ -548,15 +705,23 @@ export default function AdminDashboard() {
           <div>
             {/* Section heading */}
             <div className="mb-6">
-              <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">Wochenübersicht</p>
-              <h3 className="text-2xl font-black tracking-tight text-slate-900">Terminkalender</h3>
+              <p className="text-sm font-semibold uppercase tracking-wide text-amber-500 mb-1">
+                Wochenübersicht
+              </p>
+              <h3 className="text-2xl font-black tracking-tight text-slate-900">
+                Terminkalender
+              </h3>
             </div>
 
             {/* Week nav bar */}
             <div className="bg-white rounded-3xl border border-gray-200 p-5 mb-6 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => { const d = new Date(weekBase); d.setDate(d.getDate() - 7); setWeekBase(d); }}
+                  onClick={() => {
+                    const d = new Date(weekBase);
+                    d.setDate(d.getDate() - 7);
+                    setWeekBase(d);
+                  }}
                   className="w-9 h-9 flex items-center justify-center bg-slate-50 border border-gray-200 rounded-xl hover:border-amber-300 hover:bg-amber-50 transition-all"
                 >
                   <ChevronLeft className="w-4 h-4 text-gray-600" />
@@ -568,7 +733,11 @@ export default function AdminDashboard() {
                   Heute
                 </button>
                 <button
-                  onClick={() => { const d = new Date(weekBase); d.setDate(d.getDate() + 7); setWeekBase(d); }}
+                  onClick={() => {
+                    const d = new Date(weekBase);
+                    d.setDate(d.getDate() + 7);
+                    setWeekBase(d);
+                  }}
                   className="w-9 h-9 flex items-center justify-center bg-slate-50 border border-gray-200 rounded-xl hover:border-amber-300 hover:bg-amber-50 transition-all"
                 >
                   <ChevronRight className="w-4 h-4 text-gray-600" />
@@ -583,14 +752,21 @@ export default function AdminDashboard() {
               </div>
 
               <span className="font-black text-xl tracking-tight text-slate-900">
-                {weekDays[0].toLocaleString("en-DE", { month: "long" })} {weekDays[0].getFullYear()}
+                {weekDays[0].toLocaleString("en-DE", { month: "long" })}{" "}
+                {weekDays[0].getFullYear()}
               </span>
 
               {/* Legend */}
               <div className="flex gap-4 flex-wrap">
                 {Object.entries(SERVICE_COLOR).map(([s, c]) => (
-                  <div key={s} className="flex items-center gap-1.5 text-xs text-gray-500">
-                    <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: c }} />
+                  <div
+                    key={s}
+                    className="flex items-center gap-1.5 text-xs text-gray-500"
+                  >
+                    <span
+                      className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                      style={{ background: c }}
+                    />
                     {s}
                   </div>
                 ))}
@@ -606,28 +782,41 @@ export default function AdminDashboard() {
             )}
             {calendarError && !calendarLoading && (
               <div className="text-red-600 text-sm mb-4 bg-red-50 rounded-2xl border border-red-200 px-5 py-4">
-                ⚠️ {calendarError} — Stellen Sie sicher, dass Ihr Backend läuft und der n8n-Workflow aktiv ist.
+                ⚠️ {calendarError} — Stellen Sie sicher, dass Ihr Backend läuft
+                und der n8n-Workflow aktiv ist.
               </div>
             )}
-            {!calendarLoading && !calendarError && calendarEvents.length === 0 && (
-              <div className="text-gray-400 text-sm mb-4 bg-white rounded-2xl border border-gray-200 px-5 py-4">
-                Für diesen Zeitraum wurden keine Termine im Google Kalender gefunden.
-              </div>
-            )}
+            {!calendarLoading &&
+              !calendarError &&
+              calendarEvents.length === 0 && (
+                <div className="text-gray-400 text-sm mb-4 bg-white rounded-2xl border border-gray-200 px-5 py-4">
+                  Für diesen Zeitraum wurden keine Termine im Google Kalender
+                  gefunden.
+                </div>
+              )}
 
             {/* Calendar grid */}
             <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden">
               {/* Day headers */}
-              <div className="grid border-b border-gray-100 bg-slate-50" style={{ gridTemplateColumns: "64px repeat(7, 1fr)" }}>
+              <div
+                className="grid border-b border-gray-100 bg-slate-50"
+                style={{ gridTemplateColumns: "64px repeat(7, 1fr)" }}
+              >
                 <div className="p-3" />
                 {weekDays.map((day, i) => {
-                  const isToday = day.toDateString() === new Date().toDateString();
+                  const isToday =
+                    day.toDateString() === new Date().toDateString();
                   return (
-                    <div key={i} className={`p-3 text-center border-l border-gray-100 ${isToday ? "bg-amber-50" : ""}`}>
+                    <div
+                      key={i}
+                      className={`p-3 text-center border-l border-gray-100 ${isToday ? "bg-amber-50" : ""}`}
+                    >
                       <div className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
                         {day.toLocaleString("en-DE", { weekday: "short" })}
                       </div>
-                      <div className={`text-xl font-black leading-none ${isToday ? "text-amber-500" : "text-slate-900"}`}>
+                      <div
+                        className={`text-xl font-black leading-none ${isToday ? "text-amber-500" : "text-slate-900"}`}
+                      >
                         {day.getDate()}
                       </div>
                       {isToday && (
@@ -644,7 +833,10 @@ export default function AdminDashboard() {
                   <div
                     key={hour}
                     className="grid border-b border-gray-100 min-h-[72px]"
-                    style={{ gridTemplateColumns: "64px repeat(7, 1fr)", background: hi % 2 === 0 ? "#ffffff" : "#f9fafb" }}
+                    style={{
+                      gridTemplateColumns: "64px repeat(7, 1fr)",
+                      background: hi % 2 === 0 ? "#ffffff" : "#f9fafb",
+                    }}
                   >
                     {/* Time label */}
                     <div className="px-3 pt-3 text-xs font-bold text-gray-300 text-right leading-none border-r border-gray-100 select-none">
@@ -653,7 +845,8 @@ export default function AdminDashboard() {
 
                     {weekDays.map((day, di) => {
                       const slotEvents = getSlotForCell(day, hour);
-                      const isToday = day.toDateString() === new Date().toDateString();
+                      const isToday =
+                        day.toDateString() === new Date().toDateString();
                       return (
                         <div
                           key={di}
@@ -662,7 +855,9 @@ export default function AdminDashboard() {
                           {slotEvents.map((e, ei) => {
                             const meta = parseEventMeta(e);
                             const c = SERVICE_COLOR[meta.service] || "#6366f1";
-                            const stConfig = meta.status ? STATUS_CONFIG[meta.status] : null;
+                            const stConfig = meta.status
+                              ? STATUS_CONFIG[meta.status]
+                              : null;
                             return (
                               <div
                                 key={ei}
@@ -679,11 +874,16 @@ export default function AdminDashboard() {
                                     {fmtTime(e.start)}
                                   </span>
                                   {meta.urgency === "urgent" && (
-                                    <span className="text-[9px] font-black text-white bg-red-600 rounded px-1">URGENT</span>
+                                    <span className="text-[9px] font-black text-white bg-red-600 rounded px-1">
+                                      URGENT
+                                    </span>
                                   )}
                                 </div>
                                 {/* Body */}
-                                <div className="px-2 py-1.5" style={{ background: c + "12" }}>
+                                <div
+                                  className="px-2 py-1.5"
+                                  style={{ background: c + "12" }}
+                                >
                                   <div className="text-[11px] font-bold text-slate-800 truncate leading-tight">
                                     {meta.customerName}
                                   </div>
@@ -691,12 +891,20 @@ export default function AdminDashboard() {
                                     {meta.service}
                                   </div>
                                   <div className="flex items-center justify-between mt-1 gap-1">
-                                    {meta.price != null
-                                      ? <span className="text-[10px] font-bold" style={{ color: c }}>€{meta.price}</span>
-                                      : <span />
-                                    }
+                                    {meta.price != null ? (
+                                      <span
+                                        className="text-[10px] font-bold"
+                                        style={{ color: c }}
+                                      >
+                                        €{meta.price}
+                                      </span>
+                                    ) : (
+                                      <span />
+                                    )}
                                     {stConfig && (
-                                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${stConfig.cls}`}>
+                                      <span
+                                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${stConfig.cls}`}
+                                      >
                                         {stConfig.label}
                                       </span>
                                     )}

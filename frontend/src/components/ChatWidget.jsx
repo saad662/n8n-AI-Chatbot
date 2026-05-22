@@ -7,15 +7,28 @@ const CLOUDINARY_UPLOAD_PRESET = "chatbot_upload";
 
 // ─── SUPABASE CONFIG ─────────────────────────────────────────────────
 const SUPABASE_URL = "https://cthzexnthkybvoebwyth.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII"; // ← replace this
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII";
 // ─────────────────────────────────────────────────────────────────────
 
 // ── Save a new lead into Supabase ("leads" table) ───────────────────
-async function saveLeadToSupabase({ customerName, phone, email, service, quantity, urgency, price, slot, photoUrl }) {
+async function saveLeadToSupabase({
+  customerName,
+  phone,
+  email,
+  address,
+  service,
+  quantity,
+  urgency,
+  price,
+  slot,
+  photoUrl,
+}) {
   const newLead = {
     customer_name: customerName,
     phone,
     email,
+    address,
     service,
     quantity: quantity || 1,
     urgency,
@@ -29,9 +42,9 @@ async function saveLeadToSupabase({ customerName, phone, email, service, quantit
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "apikey": SUPABASE_ANON_KEY,
-      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-      "Prefer": "return=minimal",
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Prefer: "return=minimal",
     },
     body: JSON.stringify(newLead),
   });
@@ -59,6 +72,7 @@ export default function ChatWidget() {
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [address, setAddress] = useState("");
   const [input, setInput] = useState("");
   const [quantity, setQuantity] = useState(null);
   const [urgency, setUrgency] = useState("normal");
@@ -100,7 +114,12 @@ export default function ChatWidget() {
   }, [messages]);
 
   useEffect(() => {
-    if (step === "name" || step === "phone" || step === "email") {
+    if (
+      step === "name" ||
+      step === "phone" ||
+      step === "email" ||
+      step === "address"
+    ) {
       inputRef.current?.focus();
     }
   }, [step]);
@@ -110,6 +129,7 @@ export default function ChatWidget() {
     if (step === "name") handleName(input);
     else if (step === "phone") handlePhone(input);
     else if (step === "email") handleEmail(input);
+    else if (step === "address") handleAddress(input);
     setInput("");
   };
 
@@ -133,15 +153,31 @@ export default function ChatWidget() {
     setStep("email");
   };
 
+  const handleAddress = (value) => {
+    setAddress(value);
+    addMessage({ sender: "user", text: value });
+    addMessage({
+      sender: "bot",
+      text: "What service do you need?",
+    });
+    setStep("service");
+  };
+
   const handleEmail = (value) => {
     if (!isValidEmail(value)) {
-      addMessage({ sender: "bot", text: "Please enter a valid email address." });
+      addMessage({
+        sender: "bot",
+        text: "Please enter a valid email address.",
+      });
       return;
     }
     setEmail(value);
     addMessage({ sender: "user", text: value });
-    addMessage({ sender: "bot", text: "What service do you need?" });
-    setStep("service");
+    addMessage({
+      sender: "bot",
+      text: "What is your street address?",
+    });
+    setStep("address");
   };
 
   const handleServiceSelect = (s) => {
@@ -169,19 +205,23 @@ export default function ChatWidget() {
     addMessage({ sender: "user", text: u });
     setStep("loading");
 
-    const res = await fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        customerName,
-        phone,
-        email,
-        service,
-        quantity,
-        urgency: u,
-        message: `${service} ${quantity || 1} ${u}`,
-      }),
-    });
+    const res = await fetch(
+      "https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName,
+          phone,
+          email,
+          address,
+          service,
+          quantity,
+          urgency: u,
+          message: `${service} ${quantity || 1} ${u}`,
+        }),
+      },
+    );
 
     const data = await res.json();
     addMessage({ sender: "bot", text: data.reply });
@@ -204,11 +244,17 @@ export default function ChatWidget() {
     const file = e.target.files[0];
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      addMessage({ sender: "bot", text: "Please select an image file (JPG, PNG, etc.)." });
+      addMessage({
+        sender: "bot",
+        text: "Please select an image file (JPG, PNG, etc.).",
+      });
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      addMessage({ sender: "bot", text: "Image is too large. Please choose one under 10MB." });
+      addMessage({
+        sender: "bot",
+        text: "Image is too large. Please choose one under 10MB.",
+      });
       return;
     }
     setPhotoFile(file);
@@ -223,7 +269,7 @@ export default function ChatWidget() {
     formData.append("folder", "lutz-electrical");
     const res = await fetch(
       `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
-      { method: "POST", body: formData }
+      { method: "POST", body: formData },
     );
     if (!res.ok) throw new Error("Cloudinary upload failed");
     const data = await res.json();
@@ -237,32 +283,47 @@ export default function ChatWidget() {
     try {
       const url = await uploadToCloudinary(photoFile);
       setPhotoUrl(url);
-      addMessage({ sender: "bot", text: "✅ Photo uploaded! We'll use it to better prepare for your visit." });
+      addMessage({
+        sender: "bot",
+        text: "✅ Photo uploaded! We'll use it to better prepare for your visit.",
+      });
     } catch {
-      addMessage({ sender: "bot", text: "⚠️ Photo upload failed. You can still book without it." });
+      addMessage({
+        sender: "bot",
+        text: "⚠️ Photo upload failed. You can still book without it.",
+      });
     } finally {
       setPhotoUploading(false);
       setStep("final");
-      addMessage({ sender: "bot", text: "Would you like to book an appointment?" });
+      addMessage({
+        sender: "bot",
+        text: "Would you like to book an appointment?",
+      });
     }
   };
 
   const handleSkipPhoto = () => {
     addMessage({ sender: "user", text: "Skip photo" });
     setStep("final");
-    addMessage({ sender: "bot", text: "No problem! Would you like to book an appointment?" });
+    addMessage({
+      sender: "bot",
+      text: "No problem! Would you like to book an appointment?",
+    });
   };
 
   // ── BOOKING ────────────────────────────────────────────────────────
 
   const handleBooking = async () => {
-    const res = await fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: `${service} ${quantity || 1} ${urgency}`,
-      }),
-    });
+    const res = await fetch(
+      "https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: `${service} ${quantity || 1} ${urgency}`,
+        }),
+      },
+    );
     const data = await res.json();
     setMessages((prev) => [
       ...prev,
@@ -285,21 +346,25 @@ export default function ChatWidget() {
     addMessage({ sender: "user", text: formattedSlot });
 
     try {
-      const res = await fetch("https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "book_slot",
-          slot,
-          customerName,
-          phone,
-          email,
-          service,
-          quantity,
-          urgency,
-          photoUrl: photoUrl || null,
-        }),
-      });
+      const res = await fetch(
+        "https://cthzexnthkybvoebwyth.supabase.co/functions/v1/chat",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "book_slot",
+            slot,
+            customerName,
+            phone,
+            email,
+            address,
+            service,
+            quantity,
+            urgency,
+            photoUrl: photoUrl || null,
+          }),
+        },
+      );
 
       const data = await res.json();
 
@@ -309,12 +374,15 @@ export default function ChatWidget() {
             prev.map((msg) =>
               msg.slots
                 ? { ...msg, slots: msg.slots.filter((s) => s !== slot) }
-                : msg
-            )
+                : msg,
+            ),
           );
           setSelectedDay(null);
         }
-        addMessage({ sender: "bot", text: data.reply || "Booking failed. Please try again." });
+        addMessage({
+          sender: "bot",
+          text: data.reply || "Booking failed. Please try again.",
+        });
         return;
       }
 
@@ -325,6 +393,7 @@ export default function ChatWidget() {
           customerName,
           phone,
           email,
+          address,
           service,
           quantity,
           urgency,
@@ -337,7 +406,7 @@ export default function ChatWidget() {
       }
       addMessage({
         sender: "bot",
-        text: `✅ Appointment Confirmed\n\n📅 ${formattedSlot}\n\n👤 ${customerName}\n🔧 ${service}\n\nA confirmation email will be sent shortly.`,
+        text: `✅ Appointment Confirmed 📅 ${formattedSlot} 👤 ${customerName} 📍 ${address} 🔧 ${service} A confirmation email will be sent shortly.`,
       });
 
       setStep("final_done");
@@ -386,13 +455,21 @@ export default function ChatWidget() {
           {/* HEADER */}
           <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-4 py-2.5 font-semibold flex items-center justify-between">
             <span>⚡ Lutz Electrical</span>
-            <button onClick={() => setOpen(false)} className="text-black font-bold">✕</button>
+            <button
+              onClick={() => setOpen(false)}
+              className="text-black font-bold"
+            >
+              ✕
+            </button>
           </div>
 
           {/* MESSAGES */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-gray-50">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex ${msg.sender === "user" ? "justify-end" : ""}`}>
+              <div
+                key={i}
+                className={`flex ${msg.sender === "user" ? "justify-end" : ""}`}
+              >
                 <div
                   className={`px-4 py-2 rounded-2xl shadow text-sm max-w-[75%] animate-[fadeIn_0.25s_ease-out] ${
                     msg.sender === "user"
@@ -403,70 +480,82 @@ export default function ChatWidget() {
                   <div style={{ whiteSpace: "pre-line" }}>{msg.text}</div>
 
                   {/* SLOT PICKER */}
-                  {msg.slots && msg.slots.length > 0 && (() => {
-                    const grouped = {};
-                    [...new Set(msg.slots)].forEach((slot) => {
-                      const dayLabel = new Date(slot).toLocaleString("en-DE", {
-                        weekday: "short", month: "short", day: "numeric",
+                  {msg.slots &&
+                    msg.slots.length > 0 &&
+                    (() => {
+                      const grouped = {};
+                      [...new Set(msg.slots)].forEach((slot) => {
+                        const dayLabel = new Date(slot).toLocaleString(
+                          "en-DE",
+                          {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                          },
+                        );
+                        if (!grouped[dayLabel]) grouped[dayLabel] = [];
+                        grouped[dayLabel].push(slot);
                       });
-                      if (!grouped[dayLabel]) grouped[dayLabel] = [];
-                      grouped[dayLabel].push(slot);
-                    });
-                    const days = Object.keys(grouped);
+                      const days = Object.keys(grouped);
 
-                    return (
-                      <div className="mt-3 flex flex-col gap-2">
-                        {!selectedDay && (
-                          <>
-                            <p className="text-xs text-gray-500 font-medium mb-1">Choose a day:</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {days.map((day, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => setSelectedDay(day)}
-                                  className="px-4 py-2 rounded-2xl text-xs font-semibold bg-white border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 shadow-sm"
-                                >
-                                  {day}
-                                </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
-
-                        {selectedDay && (
-                          <>
-                            <div className="flex items-center gap-2 mb-1">
-                              <button
-                                onClick={() => setSelectedDay(null)}
-                                className="text-xs text-gray-400 hover:text-gray-600 underline"
-                              >
-                                ← Back
-                              </button>
-                              <p className="text-xs text-gray-500 font-medium">
-                                {selectedDay} — choose a time:
+                      return (
+                        <div className="mt-3 flex flex-col gap-2">
+                          {!selectedDay && (
+                            <>
+                              <p className="text-xs text-gray-500 font-medium mb-1">
+                                Choose a day:
                               </p>
-                            </div>
-                            <div className="flex flex-wrap gap-1.5">
-                              {grouped[selectedDay].map((slot, idx) => (
+                              <div className="flex flex-wrap gap-1.5">
+                                {days.map((day, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => setSelectedDay(day)}
+                                    className="px-4 py-2 rounded-2xl text-xs font-semibold bg-white border border-gray-200 hover:border-yellow-400 hover:bg-yellow-50 transition-all duration-200 shadow-sm"
+                                  >
+                                    {day}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+
+                          {selectedDay && (
+                            <>
+                              <div className="flex items-center gap-2 mb-1">
                                 <button
-                                  key={idx}
-                                  disabled={bookingLoading}
-                                  onClick={() => handleSlotSelect(slot)}
-                                  className={`min-w-[72px] px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-200 shadow-sm border ${
-                                    bookingLoading
-                                      ? "bg-gray-300 text-gray-400 cursor-not-allowed border-gray-300"
-                                      : "bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-105 border-yellow-500"
-                                  }`}
+                                  onClick={() => setSelectedDay(null)}
+                                  className="text-xs text-gray-400 hover:text-gray-600 underline"
                                 >
-                                  {new Date(slot).toLocaleString("en-DE", { hour: "2-digit", minute: "2-digit" })}
+                                  ← Back
                                 </button>
-                              ))}
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })()}
+                                <p className="text-xs text-gray-500 font-medium">
+                                  {selectedDay} — choose a time:
+                                </p>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {grouped[selectedDay].map((slot, idx) => (
+                                  <button
+                                    key={idx}
+                                    disabled={bookingLoading}
+                                    onClick={() => handleSlotSelect(slot)}
+                                    className={`min-w-[72px] px-4 py-2 rounded-2xl text-xs font-semibold transition-all duration-200 shadow-sm border ${
+                                      bookingLoading
+                                        ? "bg-gray-300 text-gray-400 cursor-not-allowed border-gray-300"
+                                        : "bg-yellow-400 text-black hover:bg-yellow-300 hover:scale-105 border-yellow-500"
+                                    }`}
+                                  >
+                                    {new Date(slot).toLocaleString("en-DE", {
+                                      hour: "2-digit",
+                                      minute: "2-digit",
+                                    })}
+                                  </button>
+                                ))}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })()}
                 </div>
               </div>
             ))}
@@ -475,7 +564,10 @@ export default function ChatWidget() {
 
           {/* OPTIONS AREA */}
           <div className="p-2.5 pb-[max(10px,env(safe-area-inset-bottom))] border-t bg-white space-y-2">
-            {(step === "name" || step === "phone" || step === "email") && (
+            {(step === "name" ||
+              step === "phone" ||
+              step === "email" ||
+              step === "address") && (
               <div className="flex gap-2">
                 <input
                   type="text"
@@ -484,9 +576,15 @@ export default function ChatWidget() {
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
                   placeholder={
-                    step === "name" ? "Enter your name"
-                    : step === "phone" ? "Enter phone number"
-                    : "Enter your email"
+                    step === "name"
+                      ? "Enter your name"
+                      : step === "phone"
+                        ? "Enter phone number"
+                        : step === "email"
+                          ? "Enter your email"
+                          : step === "address"
+                            ? "Enter your street address"
+                            : ""
                   }
                   className="flex-1 border rounded-xl px-3 py-2 text-sm outline-none"
                 />
@@ -548,8 +646,14 @@ export default function ChatWidget() {
               <div className="flex items-center gap-2 text-xs text-gray-500 px-2 py-1">
                 <div className="flex gap-1">
                   <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
-                  <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+                  <span
+                    className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.15s" }}
+                  />
+                  <span
+                    className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.3s" }}
+                  />
                 </div>
                 <span>Calculating price...</span>
               </div>
@@ -567,12 +671,17 @@ export default function ChatWidget() {
 
                 {photoPreview && (
                   <div className="relative w-full h-24 rounded-xl overflow-hidden border border-gray-200">
-                    <img src={photoPreview} alt="preview" className="w-full h-full object-cover" />
+                    <img
+                      src={photoPreview}
+                      alt="preview"
+                      className="w-full h-full object-cover"
+                    />
                     <button
                       onClick={() => {
                         setPhotoFile(null);
                         setPhotoPreview(null);
-                        if (fileInputRef.current) fileInputRef.current.value = "";
+                        if (fileInputRef.current)
+                          fileInputRef.current.value = "";
                       }}
                       className="absolute top-1 right-1 bg-black/50 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center"
                     >
@@ -601,8 +710,14 @@ export default function ChatWidget() {
                   {photoUploading && (
                     <div className="flex items-center gap-1 px-3 py-2 text-xs text-gray-400">
                       <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" />
-                      <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: "0.15s" }} />
-                      <span className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: "0.3s" }} />
+                      <span
+                        className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.15s" }}
+                      />
+                      <span
+                        className="w-2 h-2 bg-yellow-400 rounded-full animate-bounce"
+                        style={{ animationDelay: "0.3s" }}
+                      />
                     </div>
                   )}
                 </div>
