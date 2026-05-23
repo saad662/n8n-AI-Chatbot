@@ -320,6 +320,14 @@ export default function ChatWidget() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "get_slots",
+          customerName,
+          phone,
+          email,
+          address,
+          service,
+          quantity,
+          urgency,
           message: `${service} ${quantity || 1} ${urgency}`,
         }),
       },
@@ -327,7 +335,11 @@ export default function ChatWidget() {
     const data = await res.json();
     setMessages((prev) => [
       ...prev,
-      { sender: "bot", text: "Bitte wählen Sie einen Termin aus", slots: data.slots || [] },
+      {
+        sender: "bot",
+        text: "Bitte wählen Sie einen Termin aus",
+        slots: data.slots || [],
+      },
     ]);
     setSelectedDay(null);
     setStep("booked");

@@ -1,5 +1,5 @@
 {
-  "name": "AI bot - whatsapp",
+  "name": "AI Chatbot - floweffizient demo",
   "nodes": [
     {
       "parameters": {
@@ -24,7 +24,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -544,
+        -592,
         -176
       ],
       "id": "d0f9fb81-6eb0-45a9-b010-b5e3732a16ad",
@@ -52,7 +52,7 @@
       "type": "@n8n/n8n-nodes-langchain.openAi",
       "typeVersion": 2.1,
       "position": [
-        -96,
+        -144,
         16
       ],
       "id": "40433418-cf70-49d2-a73a-c3405de3159b",
@@ -72,7 +72,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        256,
+        208,
         16
       ],
       "id": "f1adb6cb-605d-4844-a30f-09a605a7cfe8",
@@ -81,12 +81,12 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const services = [\n  { service: \"Socket installation\", base: 50, unit: \"unit\", per: 10, urgency: 1.5 },\n  { service: \"Light installation\", base: 40, unit: \"unit\", per: 8, urgency: 1.3 },\n  { service: \"Wiring\", base: 80, unit: \"meter\", per: 5, urgency: 1.2 },\n  { service: \"Inspection\", base: 40, unit: \"fixed\", per: 0, urgency: 1.0 },\n  { service: \"Emergency repair\", base: 100, unit: \"fixed\", per: 0, urgency: 2.0 }\n];\n\nconst s = services.find(x => x.service === $json.service);\n\nif (!s) {\n  return {\n    json: {\n      reply: \"Service not found.\"\n    }\n  };\n}\n\nlet price = s.base;\n\nif (s.unit !== \"fixed\") {\n  price += $json.quantity * s.per;\n}\n\nif ($json.urgency === \"urgent\") {\n  price *= s.urgency;\n}\n\nprice = Math.round(price);\n\nreturn {\n  json: {\n    service: s.service,\n    quantity: $json.quantity,\n    urgency: $json.urgency,\n    price,\n    reply: `Estimated price for ${s.service}: €${price}. Would you like to book an appointment?`\n  }\n};"
+        "jsCode": "// === GOOGLE SHEETS DRIVEN PRICING ===\n\nconst allItems = $input.all();\n\nconst services = allItems.map(row => ({\n  service: row.json.service,\n  base: Number(row.json.base),\n  unit: row.json.unit,\n  per: Number(row.json.per),\n  urgency: Number(row.json.urgency),\n}));\n\nconst payload = $json;\n\nconst s = services.find(x => x.service === payload.service);\n\nif (!s) {\n  return {\n    json: {\n      reply: 'Service not found. Please check your Services sheet.'\n    }\n  };\n}\n\nlet price = s.base;\n\nif (s.unit !== 'fixed') {\n  price += (Number(payload.quantity) || 1) * s.per;\n}\n\nif (payload.urgency === 'urgent') {\n  price *= s.urgency;\n}\n\nprice = Math.round(price);\n\nreturn {\n  json: {\n    service: s.service,\n    quantity: payload.quantity,\n    urgency: payload.urgency,\n    price,\n    reply: `Geschätzter Preis für ${s.service}: €${price}. Möchten Sie einen Termin buchen?`\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        480,
+        656,
         16
       ],
       "id": "f6fe38db-114e-4a41-8ec9-6504aea64453",
@@ -119,7 +119,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        -320,
+        -368,
         -176
       ],
       "id": "2716315e-e6c2-444b-a9db-6e06d7831d6e",
@@ -132,7 +132,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        928,
+        1104,
         16
       ],
       "id": "da5f2e92-9c6b-4432-9ee1-33346f2e2955",
@@ -156,7 +156,7 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1.3,
       "position": [
-        704,
+        656,
         -368
       ],
       "id": "ba978a6e-caf7-4e0d-a6ba-59322f0789a3",
@@ -176,7 +176,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        256,
+        208,
         -272
       ],
       "id": "744eeb76-59ad-4d52-ad68-0ccd666f64a3",
@@ -210,7 +210,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        480,
+        432,
         -272
       ],
       "id": "01205809-f594-4cde-9bcb-55f901b261ad",
@@ -233,7 +233,7 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1.3,
       "position": [
-        -32,
+        -80,
         -272
       ],
       "id": "e88887aa-12c8-4b9d-9b73-d6cdb7c86b43",
@@ -263,7 +263,7 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1.3,
       "position": [
-        704,
+        880,
         16
       ],
       "id": "188f4b62-b928-4bfc-aa02-860392d01177",
@@ -287,7 +287,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        704,
+        656,
         -176
       ],
       "id": "f0a67f41-2af1-401c-b016-b45fd2718bc2",
@@ -302,7 +302,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        928,
+        880,
         -368
       ],
       "id": "1f669493-6351-4304-b7c4-6036ead3fe26",
@@ -315,7 +315,7 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        1152,
+        1328,
         16
       ],
       "id": "f610b2b1-ded5-4be8-a47e-15eb4ed00a7a",
@@ -330,7 +330,7 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -544,
+        -592,
         -592
       ],
       "id": "11fef1a0-9f19-4c07-83d9-11494518c49a",
@@ -354,7 +354,7 @@
       "type": "n8n-nodes-base.googleCalendar",
       "typeVersion": 1.3,
       "position": [
-        -320,
+        -368,
         -592
       ],
       "id": "16766248-078a-4c0e-89ba-02b601fb9c27",
@@ -375,11 +375,44 @@
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.5,
       "position": [
-        -96,
+        -144,
         -592
       ],
       "id": "1758cdfe-8c7f-453d-8534-d423915e7f46",
       "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1fa-wqv8Z5yLlRfoOT4-d2MtTu2IqvRAnT8S705gIL4M",
+          "mode": "list",
+          "cachedResultName": "N8N AI bot Services",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fa-wqv8Z5yLlRfoOT4-d2MtTu2IqvRAnT8S705gIL4M/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Services",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fa-wqv8Z5yLlRfoOT4-d2MtTu2IqvRAnT8S705gIL4M/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        432,
+        16
+      ],
+      "id": "67a187ca-aad9-4010-833b-9c7980335d3b",
+      "name": "Read Services Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "nD32GLb2K67JSr7b",
+          "name": "Google Sheets account 2"
+        }
+      }
     }
   ],
   "pinData": {
@@ -456,7 +489,7 @@
       "main": [
         [
           {
-            "node": "Pricing",
+            "node": "Read Services Sheet",
             "type": "main",
             "index": 0
           }
@@ -586,6 +619,17 @@
           }
         ]
       ]
+    },
+    "Read Services Sheet": {
+      "main": [
+        [
+          {
+            "node": "Pricing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -593,7 +637,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "0e770a03-e2ac-4dca-a359-705eb18c304a",
+  "versionId": "4de5e6e2-c69b-4547-a82b-26e78fe05216",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "7e64925587b3eed4f13db5d058cc8f992804c21a75e3a8ce064d5bafbb3e96ac"
