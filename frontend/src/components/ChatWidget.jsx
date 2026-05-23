@@ -69,6 +69,7 @@ export default function ChatWidget() {
 
   const [step, setStep] = useState("name");
   const [service, setService] = useState(null);
+  const [availableServices, setAvailableServices] = useState([]);
   const [customerName, setCustomerName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -94,13 +95,31 @@ export default function ChatWidget() {
     },
   ]);
 
-  const services = [
-    "Socket installation",
-    "Light installation",
-    "Wiring",
-    "Inspection",
-    "Emergency repair",
-  ];
+  // Fetch services dynamically from Supabase (managed by Admin in Services tab)
+  useEffect(() => {
+    fetch(`${SUPABASE_URL}/rest/v1/services?order=service.asc`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    })
+      .then((r) => r.json())
+      .then((rows) => {
+        if (Array.isArray(rows) && rows.length > 0) {
+          setAvailableServices(rows.map((r) => r.service));
+        }
+      })
+      .catch(() => {
+        // Fallback to defaults if Supabase unreachable
+        setAvailableServices([
+          "Socket installation",
+          "Light installation",
+          "Wiring",
+          "Inspection",
+          "Emergency repair",
+        ]);
+      });
+  }, []);
 
   const addMessage = (msg) => setMessages((prev) => [...prev, msg]);
 
@@ -611,7 +630,7 @@ export default function ChatWidget() {
 
             {step === "service" && (
               <div className="flex flex-wrap gap-2">
-                {services.map((s, i) => (
+                {availableServices.map((s, i) => (
                   <button
                     key={i}
                     onClick={() => handleServiceSelect(s)}

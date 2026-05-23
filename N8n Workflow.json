@@ -42,7 +42,7 @@
         "responses": {
           "values": [
             {
-              "content": "=Extract structured info from this message.\n\nReturn ONLY JSON:\n\n{\n  \"service\": \"\",\n  \"quantity\": number,\n  \"urgency\": \"normal\" or \"urgent\"\n}\n\nMessage:\n{{$json[\"body\"][\"message\"]}}"
+              "content": "=Extract structured info from this message.\n\nValid services (use EXACT spelling):\n- Socket installation\n- Light installation\n- Wiring\n- Inspection\n- Emergency repair\n\nReturn ONLY JSON:\n\n{\n  \"service\": \"\",\n  \"quantity\": number,\n  \"urgency\": \"normal\" or \"urgent\"\n}\n\nMessage:\n{{$json[\"body\"][\"message\"]}}"
             }
           ]
         },
@@ -80,8 +80,7 @@
     },
     {
       "parameters": {
-        "mode": "runOnceForEachItem",
-        "jsCode": "// === GOOGLE SHEETS DRIVEN PRICING ===\n\nconst allItems = $input.all();\n\nconst services = allItems.map(row => ({\n  service: row.json.service,\n  base: Number(row.json.base),\n  unit: row.json.unit,\n  per: Number(row.json.per),\n  urgency: Number(row.json.urgency),\n}));\n\nconst payload = $json;\n\nconst s = services.find(x => x.service === payload.service);\n\nif (!s) {\n  return {\n    json: {\n      reply: 'Service not found. Please check your Services sheet.'\n    }\n  };\n}\n\nlet price = s.base;\n\nif (s.unit !== 'fixed') {\n  price += (Number(payload.quantity) || 1) * s.per;\n}\n\nif (payload.urgency === 'urgent') {\n  price *= s.urgency;\n}\n\nprice = Math.round(price);\n\nreturn {\n  json: {\n    service: s.service,\n    quantity: payload.quantity,\n    urgency: payload.urgency,\n    price,\n    reply: `Geschätzter Preis für ${s.service}: €${price}. Möchten Sie einen Termin buchen?`\n  }\n};"
+        "jsCode": "// === SUPABASE DRIVEN PRICING ===\nconst allItems = $input.all();\n\nconst services = allItems.map(row => ({\n  service: row.json.service,\n  base: Number(row.json.base),\n  unit: row.json.unit,\n  per: Number(row.json.per),\n  urgency: Number(row.json.urgency),\n}));\n\n// Read directly from webhook body — bypasses GPT guessing\nconst payload = {\n  service: $('Webhook').first().json.body.service,\n  quantity: $('Webhook').first().json.body.quantity,\n  urgency: $('Webhook').first().json.body.urgency,\n};\n\nconst s = services.find(x => x.service === payload.service);\n\nif (!s) {\n  return {\n    json: {\n      reply: 'Service not found. Please check your Services sheet.'\n    }\n  };\n}\n\nlet price = s.base;\n\nif (s.unit !== 'fixed') {\n  price += (Number(payload.quantity) || 1) * s.per;\n}\n\nif (payload.urgency === 'urgent') {\n  price *= s.urgency;\n}\n\nprice = Math.round(price);\n\nreturn {\n  json: {\n    service: s.service,\n    quantity: payload.quantity,\n    urgency: payload.urgency,\n    price,\n    reply: `Geschätzter Preis für ${s.service}: €${price}. Möchten Sie einen Termin buchen?`\n  }\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -383,36 +382,36 @@
     },
     {
       "parameters": {
-        "documentId": {
-          "__rl": true,
-          "value": "1fa-wqv8Z5yLlRfoOT4-d2MtTu2IqvRAnT8S705gIL4M",
-          "mode": "list",
-          "cachedResultName": "N8N AI bot Services",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fa-wqv8Z5yLlRfoOT4-d2MtTu2IqvRAnT8S705gIL4M/edit?usp=drivesdk"
+        "url": "https://cthzexnthkybvoebwyth.supabase.co/rest/v1/services",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0aHpleG50aGt5YnZvZWJ3eXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyODM2ODksImV4cCI6MjA5NDg1OTY4OX0.5Bvz4L2EuQOnDCJwT08zJ2lls4RQv0RsnOo99ct5yII"
+            }
+          ]
         },
-        "sheetName": {
-          "__rl": true,
-          "value": "gid=0",
-          "mode": "list",
-          "cachedResultName": "Services",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1fa-wqv8Z5yLlRfoOT4-d2MtTu2IqvRAnT8S705gIL4M/edit#gid=0"
-        },
-        "options": {}
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
       },
-      "type": "n8n-nodes-base.googleSheets",
-      "typeVersion": 4.7,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
       "position": [
-        432,
+        448,
         16
       ],
-      "id": "67a187ca-aad9-4010-833b-9c7980335d3b",
-      "name": "Read Services Sheet",
-      "credentials": {
-        "googleSheetsOAuth2Api": {
-          "id": "nD32GLb2K67JSr7b",
-          "name": "Google Sheets account 2"
-        }
-      }
+      "id": "e90d742c-d558-4b1f-98f6-595be0d8a484",
+      "name": "HTTP Request"
     }
   ],
   "pinData": {
@@ -489,7 +488,7 @@
       "main": [
         [
           {
-            "node": "Read Services Sheet",
+            "node": "HTTP Request",
             "type": "main",
             "index": 0
           }
@@ -620,7 +619,7 @@
         ]
       ]
     },
-    "Read Services Sheet": {
+    "HTTP Request": {
       "main": [
         [
           {
@@ -637,7 +636,7 @@
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
-  "versionId": "4de5e6e2-c69b-4547-a82b-26e78fe05216",
+  "versionId": "a2f83902-599d-4e68-a781-369ccf3192be",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "7e64925587b3eed4f13db5d058cc8f992804c21a75e3a8ce064d5bafbb3e96ac"
